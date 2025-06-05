@@ -1,0 +1,21 @@
+Error: ./src/components/PortfolioSection.tsx:1:5
+Parsing ecmascript source code failed
+[0m[31m[1m>[22m[39m[90m 1 |[39m [33mThe[39m code is modified to update the service categories [36min[39m the [33mPortfolioSection[39m component[33m.[39m[0m
+[0m [90m   |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 2 |[39m [32m``[39m[32m`[39m[0m
+[0m [90m 3 |[39m[0m
+[0m [90m 4 |[39m [32m`[39m[32m``[39mreplit_final_file[0m
+
+Expected ';', '}' or <eof>
+    at BuildError (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/%5Broot-of-the-server%5D__e2c08166._.js:17395:41)
+    at renderWithHooks (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_react-dom_cjs_react-dom_development_ab7e073c.js:13260:28)
+    at updateFunctionComponent (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_react-dom_cjs_react-dom_development_ab7e073c.js:16755:32)
+    at beginWork (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_react-dom_cjs_react-dom_development_ab7e073c.js:18388:32)
+    at beginWork$1 (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_react-dom_cjs_react-dom_development_ab7e073c.js:23101:28)
+    at performUnitOfWork (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_react-dom_cjs_react-dom_development_ab7e073c.js:22402:24)
+    at workLoopSync (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_react-dom_cjs_react-dom_development_ab7e073c.js:22331:17)
+    at renderRootSync (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_react-dom_cjs_react-dom_development_ab7e073c.js:22308:21)
+    at performConcurrentWorkOnRoot (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_react-dom_cjs_react-dom_development_ab7e073c.js:21732:84)
+    at workLoop (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_3bfdc6a4._.js:291:48)
+    at flushWork (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_3bfdc6a4._.js:270:28)
+    at MessagePort.performWorkUntilDeadline (https://7187264c-3625-4b3b-bb77-ad71cf64d742-00-37q77o0hynvpn.pike.replit.dev/_next/static/chunks/node_modules_3bfdc6a4._.js:498:35)
