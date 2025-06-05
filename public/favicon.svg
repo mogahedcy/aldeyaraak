@@ -1,0 +1,109 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- تدرجات خضراء محدثة -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#065f46;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#047857;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="tentBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="tentFrontGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+    </linearGradient>
+
+    <radialGradient id="shadowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.3" />
+    </radialGradient>
+
+    <!-- فلتر الظل -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#065f46" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- خلفية دائرية متدرجة -->
+  <circle cx="256" cy="256" r="250" fill="url(#bgGrad)" stroke="#ffffff" stroke-width="6"/>
+
+  <!-- مجموعة الخيمة الرئيسية -->
+  <g transform="translate(256,256)" filter="url(#dropShadow)">
+
+    <!-- ظل أرضي للخيمة -->
+    <ellipse cx="0" cy="140" rx="140" ry="20" fill="url(#shadowGrad)"/>
+
+    <!-- جسم الخيمة الرئيسي - شكل مثلثي كبير -->
+    <path d="M-140,100 L0,-120 L140,100 L100,140 L-100,140 Z" 
+          fill="url(#tentBodyGrad)" 
+          stroke="#047857" 
+          stroke-width="4"/>
+
+    <!-- الجزء الأمامي من الخيمة - لون مختلف -->
+    <path d="M-100,100 L0,-90 L100,100 L80,130 L-80,130 Z" 
+          fill="url(#tentFrontGrad)" 
+          stroke="#10b981" 
+          stroke-width="3"/>
+
+    <!-- خطوط زخرفية على الخيمة -->
+    <path d="M-80,100 L0,-60 L80,100" 
+          stroke="#ffffff" 
+          stroke-width="4" 
+          fill="none" 
+          opacity="0.8"/>
+
+    <path d="M-60,100 L0,-40 L60,100" 
+          stroke="#6ee7b7" 
+          stroke-width="3" 
+          fill="none" 
+          opacity="0.6"/>
+
+    <!-- مدخل الخيمة -->
+    <path d="M-30,100 Q0,70 30,100 L30,140 L-30,140 Z" 
+          fill="#065f46" 
+          stroke="#ffffff" 
+          stroke-width="3"/>
+
+    <!-- أعمدة الخيمة -->
+    <rect x="-120" y="100" width="8" height="40" fill="#059669" rx="4"/>
+    <rect x="112" y="100" width="8" height="40" fill="#059669" rx="4"/>
+    <rect x="-4" y="-120" width="8" height="50" fill="#059669" rx="4"/>
+
+    <!-- حبال الخيمة -->
+    <line x1="-120" y1="100" x2="-160" y2="140" stroke="#6b7280" stroke-width="3"/>
+    <line x1="120" y1="100" x2="160" y2="140" stroke="#6b7280" stroke-width="3"/>
+
+    <!-- أوتاد التثبيت -->
+    <circle cx="-160" cy="140" r="6" fill="#4b5563"/>
+    <circle cx="160" cy="140" r="6" fill="#4b5563"/>
+
+    <!-- علم صغير على القمة -->
+    <g transform="translate(0,-120)">
+      <rect x="-2" y="0" width="4" height="25" fill="#059669"/>
+      <path d="M2,5 L2,20 L25,15 L2,10 Z" fill="#10b981"/>
+    </g>
+
+    <!-- النص التوضيحي -->
+    <text x="0" y="200" 
+          font-family="Arial, sans-serif" 
+          font-size="36" 
+          font-weight="bold" 
+          text-anchor="middle" 
+          fill="#ffffff">الديار</text>
+
+    <text x="0" y="230" 
+          font-family="Arial, sans-serif" 
+          font-size="20" 
+          font-weight="600" 
+          text-anchor="middle" 
+          fill="#e5e7eb">للخيام والمظلات</text>
+  </g>
+
+  <!-- إطار خارجي نهائي -->
+  <circle cx="256" cy="256" r="250" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.8"/>
+</svg>
