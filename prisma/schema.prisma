@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id               String   @id @default(cuid())
+  title            String
+  description      String
+  category         String
+  location         String
+  completionDate   DateTime   @default(now())
+  client           String?
+  featured         Boolean    @default(false)
+  projectDuration  String?
+  projectCost      String?
+  views            Int        @default(0)
+  likes            Int        @default(0)
+  rating           Float      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  mediaItems       MediaItem[]
+  tags             ProjectTag[]
+  materials        ProjectMaterial[]
+  comments         Comment[]
+
+  @@map("projects")
+}
+
+model MediaItem {
+  id          String    @id @default(cuid())
+  projectId   String
+  type        MediaType
+  src         String
+  thumbnail   String?
+  title       String?
+  description String?
+  duration    String?   // For videos
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("media_items")
+}
+
+model ProjectTag {
+  id        String   @id @default(cuid())
+  projectId String
+  name      String
+  createdAt DateTime @default(now())
+
+  // Relations
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
+  @@map("project_tags")
+}
+
+model ProjectMaterial {
+  id        String   @id @default(cuid())
+  projectId String
+  name      String
+  createdAt DateTime @default(now())
+
+  // Relations
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_materials")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  projectId String
+  name      String
+  message   String
+  rating    Int      @default(5)
+  createdAt DateTime @default(now())
+
+  // Relations
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Admin {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  password    String   // هاش كلمة المرور
+  email       String?  @unique
+  lastLogin   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("admins")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
