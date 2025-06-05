@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>إنشاء أيقونات خيام محترفين الديار - التصميم الجديد</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            direction: rtl; 
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            min-height: 100vh;
+        }
+        canvas { 
+            border: 2px solid #ffffff; 
+            margin: 10px; 
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .icon-set { 
+            margin: 30px 0; 
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        button { 
+            margin: 8px; 
+            padding: 12px 24px; 
+            background: linear-gradient(135deg, #f59e0b, #d97706); 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            background: linear-gradient(135deg, #d97706, #b45309); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        h1 { 
+            color: #fbbf24; 
+            text-align: center; 
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 40px;
+        }
+        h3 { 
+            color: #ffffff; 
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏕️ إنشاء أيقونات خيام محترفين الديار - التصميم الجديد</h1>
+
+        <div class="grid">
+            <div class="icon-set">
+                <h3>أيقونة 16x16</h3>
+                <canvas id="canvas16" width="16" height="16"></canvas>
+                <button onclick="downloadIcon(16)">تحميل 16x16</button>
+            </div>
+
+            <div class="icon-set">
+                <h3>أيقونة 32x32</h3>
+                <canvas id="canvas32" width="32" height="32"></canvas>
+                <button onclick="downloadIcon(32)">تحميل 32x32</button>
+            </div>
+
+            <div class="icon-set">
+                <h3>أيقونة 180x180 (Apple)</h3>
+                <canvas id="canvas180" width="180" height="180"></canvas>
+                <button onclick="downloadIcon(180)">تحميل Apple Touch Icon</button>
+            </div>
+
+            <div class="icon-set">
+                <h3>أيقونة 192x192 (Android)</h3>
+                <canvas id="canvas192" width="192" height="192"></canvas>
+                <button onclick="downloadIcon(192)">تحميل Android 192x192</button>
+            </div>
+
+            <div class="icon-set">
+                <h3>أيقونة 512x512 (Android Large)</h3>
+                <canvas id="canvas512" width="512" height="512"></canvas>
+                <button onclick="downloadIcon(512)">تحميل Android 512x512</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createTentIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const ctx = canvas.getContext('2d');
+
+            // تنظيف الكانفاس
+            ctx.clearRect(0, 0, size, size);
+
+            // خلفية دائرية بتدرج أخضر محسن
+            const bgGradient = ctx.createLinearGradient(0, 0, size, size);
+            bgGradient.addColorStop(0, '#065f46');
+            bgGradient.addColorStop(0.5, '#047857');
+            bgGradient.addColorStop(1, '#059669');
+
+            // رسم الخلفية الدائرية
+            ctx.fillStyle = bgGradient;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 3, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // إطار أبيض
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = Math.max(2, size/64);
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 3, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            const scale = size / 100;
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            // رسم الخيمة الرئيسية - تصميم محسن
+            const tentGradient = ctx.createLinearGradient(0, 0, size, size);
+            tentGradient.addColorStop(0, '#10b981');
+            tentGradient.addColorStop(0.5, '#059669');
+            tentGradient.addColorStop(1, '#047857');
+
+            // جسم الخيمة - شكل أكثر واقعية
+            ctx.fillStyle = tentGradient;
+            ctx.beginPath();
+            ctx.moveTo(centerX - 45*scale, centerY + 25*scale); // النقطة اليسرى
+            ctx.lineTo(centerX, centerY - 35*scale); // القمة
+            ctx.lineTo(centerX + 45*scale, centerY + 25*scale); // النقطة اليمنى
+            ctx.lineTo(centerX + 35*scale, centerY + 40*scale); // أسفل يمين
+            ctx.lineTo(centerX - 35*scale, centerY + 40*scale); // أسفل يسار
+            ctx.closePath();
+            ctx.fill();
+
+            // الجزء الأمامي من الخيمة - لون أخضر فاتح
+            const frontGradient = ctx.createLinearGradient(0, 0, size, size);
+            frontGradient.addColorStop(0, '#34d399');
+            frontGradient.addColorStop(1, '#10b981');
+
+            ctx.fillStyle = frontGradient;
+            ctx.beginPath();
+            ctx.moveTo(centerX - 30*scale, centerY + 25*scale);
+            ctx.lineTo(centerX, centerY - 20*scale);
+            ctx.lineTo(centerX + 30*scale, centerY + 25*scale);
+            ctx.lineTo(centerX + 25*scale, centerY + 35*scale);
+            ctx.lineTo(centerX - 25*scale, centerY + 35*scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // خطوط التفصيل البيضاء
+            if (size >= 32) {
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = Math.max(1, size/50);
+                ctx.beginPath();
+                ctx.moveTo(centerX - 25*scale, centerY + 25*scale);
+                ctx.lineTo(centerX, centerY - 15*scale);
+                ctx.lineTo(centerX + 25*scale, centerY + 25*scale);
+                ctx.stroke();
+            }
+
+            // مدخل الخيمة
+            ctx.fillStyle = '#065f46';
+            ctx.beginPath();
+            ctx.moveTo(centerX - 12*scale, centerY + 25*scale);
+            ctx.quadraticCurveTo(centerX, centerY + 15*scale, centerX + 12*scale, centerY + 25*scale);
+            ctx.lineTo(centerX + 12*scale, centerY + 40*scale);
+            ctx.lineTo(centerX - 12*scale, centerY + 40*scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // أعمدة الخيمة
+            if (size >= 32) {
+                ctx.fillStyle = '#059669';
+                // العمود الأيسر
+                ctx.fillRect(centerX - 40*scale, centerY + 25*scale, 3*scale, 18*scale);
+                // العمود الأيمن
+                ctx.fillRect(centerX + 37*scale, centerY + 25*scale, 3*scale, 18*scale);
+                // العمود الأوسط
+                ctx.fillRect(centerX - 1.5*scale, centerY - 35*scale, 3*scale, 20*scale);
+            }
+
+            // علم على القمة
+            if (size >= 48) {
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(centerX + 2*scale, centerY - 35*scale, 8*scale, 6*scale);
+                ctx.fillStyle = '#059669';
+                ctx.fillRect(centerX - 1*scale, centerY - 35*scale, 3*scale, 12*scale);
+            }
+        }
+
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const link = document.createElement('a');
+
+            let filename;
+            switch(size) {
+                case 16: filename = 'favicon-16x16.png'; break;
+                case 32: filename = 'favicon-32x32.png'; break;
+                case 180: filename = 'apple-touch-icon.png'; break;
+                case 192: filename = 'android-chrome-192x192.png'; break;
+                case 512: filename = 'android-chrome-512x512.png'; break;
+            }
+
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // إنشاء جميع الأيقونات عند تحميل الصفحة
+        window.onload = function() {
+            createTentIcon(16);
+            createTentIcon(32);
+            createTentIcon(180);
+            createTentIcon(192);
+            createTentIcon(512);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Icons for محترفين الديار</title>
+</head>
+<body>
+    <h1>Icon Generator</h1>
+    <canvas id="canvas" width="512" height="512" style="border: 1px solid #ccc;"></canvas>
+
+    <div>
+        <button onclick="download(16)">Download 16x16</button>
+        <button onclick="download(32)">Download 32x32</button>
+        <button onclick="download(180)">Download 180x180 (Apple)</button>
+        <button onclick="download(192)">Download 192x192 (Android)</button>
+        <button onclick="download(512)">Download 512x512 (Android)</button>
+    </div>
+
+    <script>
+        function drawIcon(size) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = size;
+            canvas.height = size;
+
+            // Clear canvas
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+
+            // Create gradient background circle
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2563eb');
+            gradient.addColorStop(0.5, '#1d4ed8');
+            gradient.addColorStop(1, '#1e3a8a');
+
+            // Draw background circle
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 4, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Draw white border
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 4, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // Building sizes relative to canvas size
+            const scale = size / 100;
+
+            // Draw buildings
+            // Main building (orange)
+            const orangeGradient = ctx.createLinearGradient(0, 0, size, size);
+            orangeGradient.addColorStop(0, '#f97316');
+            orangeGradient.addColorStop(1, '#ea580c');
+
+            ctx.fillStyle = orangeGradient;
+            ctx.fillRect(25*scale, 35*scale, 18*scale, 45*scale);
+
+            // Second building (white)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(45*scale, 25*scale, 16*scale, 55*scale);
+
+            // Third building (orange)
+            ctx.fillStyle = orangeGradient;
+            ctx.fillRect(63*scale, 40*scale, 12*scale, 40*scale);
+
+            // Add windows
+            ctx.fillStyle = '#1e3a8a';
+            // Main building windows
+            ctx.fillRect(28*scale, 40*scale, 3*scale, 3*scale);
+            ctx.fillRect(33*scale, 40*scale, 3*scale, 3*scale);
+            ctx.fillRect(28*scale, 47*scale, 3*scale, 3*scale);
+            ctx.fillRect(33*scale, 47*scale, 3*scale, 3*scale);
+
+            // Second building windows
+            ctx.fillStyle = '#2563eb';
+            ctx.fillRect(48*scale, 30*scale, 3*scale, 3*scale);
+            ctx.fillRect(53*scale, 30*scale, 3*scale, 3*scale);
+            ctx.fillRect(48*scale, 37*scale, 3*scale, 3*scale);
+            ctx.fillRect(53*scale, 37*scale, 3*scale, 3*scale);
+
+            // Arabic letter "د"
+            if (size >= 64) {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${14*scale}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('د', size/2, 20*scale);
+            }
+        }
+
+        function download(size) {
+            drawIcon(size);
+            const canvas = document.getElementById('canvas');
+            const link = document.createElement('a');
+
+            let filename;
+            if (size === 16) filename = 'favicon-16x16.png';
+            else if (size === 32) filename = 'favicon-32x32.png';
+            else if (size === 180) filename = 'apple-touch-icon.png';
+            else if (size === 192) filename = 'android-chrome-192x192.png';
+            else if (size === 512) filename = 'android-chrome-512x512.png';
+
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Draw initial icon
+        drawIcon(512);
+    </script>
+</body>
+</html>
