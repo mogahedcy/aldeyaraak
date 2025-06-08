@@ -5,7 +5,15 @@ const nextConfig = {
 
   // تحسين الترجمة والتجميع
   experimental: {
-    // إزالة الخيارات غير المدعومة واستبدالها بالصحيحة
+    // تحسين Turbopack
+    turbo: {
+      rules: {
+        "*.svg": {
+          loaders: ["@svgr/webpack"],
+          as: "*.js",
+        },
+      },
+    },
     staleTimes: {
       dynamic: 30,
       static: 180,
@@ -20,7 +28,7 @@ const nextConfig = {
     // إلغاء تعطيل تحسين الصور لتحسين الأداء
     unoptimized: false,
 
-    // تحسين التنسيقات - إزالة quality المباشر واستخدام formats
+    // تحسين التنسيقات
     formats: ["image/webp", "image/avif"],
 
     // أحجام محسنة للأجهزة المختلفة
@@ -34,8 +42,8 @@ const nextConfig = {
       "ext.same-assets.com",
       "ugc.same-assets.com",
       "aldeyarksa.tech",
-      "res.cloudinary.com", // إضافة Cloudinary
-      "dj6gk4wmy.cloudinary.com", // إضافة نطاق Cloudinary المحدد
+      "res.cloudinary.com",
+      "dj6gk4wmy.cloudinary.com",
     ],
 
     // أنماط النطاقات المسموحة
@@ -95,50 +103,52 @@ const nextConfig = {
   // عدم إضافة trailing slash
   trailingSlash: false,
 
-  // تحسين webpack للأداء
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // تحسين التجميع
-    if (!dev && !isServer) {
-      // تقسيم البرامج للتحميل المحسن
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        cacheGroups: {
-          ...config.optimization.splitChunks.cacheGroups,
-          // تجميع مكتبات React
-          react: {
-            name: "react",
-            chunks: "all",
-            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            priority: 20,
+  // تحسين webpack للأداء (فقط عندما لا يُستخدم Turbopack)
+  ...(process.env.TURBOPACK !== "1" && {
+    webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+      // تحسين التجميع
+      if (!dev && !isServer) {
+        // تقسيم البرامج للتحميل المحسن
+        config.optimization.splitChunks = {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks.cacheGroups,
+            // تجميع مكتبات React
+            react: {
+              name: "react",
+              chunks: "all",
+              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+              priority: 20,
+            },
+            // تجميع مكتبات UI
+            ui: {
+              name: "ui",
+              chunks: "all",
+              test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|framer-motion)[\\/]/,
+              priority: 15,
+            },
+            // تجميع مكتبات أخرى
+            vendor: {
+              name: "vendor",
+              chunks: "all",
+              test: /[\\/]node_modules[\\/]/,
+              priority: 10,
+            },
           },
-          // تجميع مكتبات UI
-          ui: {
-            name: "ui",
-            chunks: "all",
-            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|framer-motion)[\\/]/,
-            priority: 15,
-          },
-          // تجميع مكتبات أخرى
-          vendor: {
-            name: "vendor",
-            chunks: "all",
-            test: /[\\/]node_modules[\\/]/,
-            priority: 10,
-          },
-        },
+        };
+      }
+
+      // تحسين أداء البناء
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
       };
-    }
 
-    // تحسين أداء البناء
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-    };
-
-    return config;
-  },
+      return config;
+    },
+  }),
 
   // Headers محسنة للأمان والأداء
   async headers() {
@@ -244,14 +254,11 @@ const nextConfig = {
 
   // تحسين TypeScript
   typescript: {
-    // تجاهل أخطاء TypeScript في البناء (للإنتاج السريع)
-    // يُنصح بإصلاح الأخطاء بدلاً من تجاهلها
     ignoreBuildErrors: false,
   },
 
   // تحسين ESLint
   eslint: {
-    // تجاهل أخطاء ESLint في البناء
     ignoreDuringBuilds: false,
   },
 };
