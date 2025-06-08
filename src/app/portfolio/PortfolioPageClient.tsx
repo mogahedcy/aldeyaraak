@@ -101,8 +101,8 @@ export default function PortfolioPageClient() {
 
   // Fetch projects when dependencies change
   useEffect(() => {
-    fetchProjectsStable();
-  }, [fetchProjectsStable]);
+    fetchProjects();
+  }, [fetchProjects]);
 
   // Fetch projects function with timeout and debouncing
   const fetchProjects = useCallback(
@@ -720,7 +720,7 @@ function ProjectListItem({ project }: { project: Project }) {
             />
           ) : mainVideo ? (
             <div className="relative w-full h-full bg-gray-900">
-              {/* صورة مصغرة كخل��ية */}
+              {/* صورة مصغرة كخلفية */}
               {mainVideo.thumbnail && (
                 <Image
                   src={mainVideo.thumbnail}
