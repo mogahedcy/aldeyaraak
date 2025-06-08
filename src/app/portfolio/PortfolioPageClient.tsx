@@ -145,7 +145,7 @@ export default function PortfolioPageClient() {
             data.projects?.length || 0,
           );
         } else {
-          throw new Error(data.error || "فشل في جلب المشاريع");
+          throw new Error(data.error || "فشل في جلب المشا��يع");
         }
       } catch (error) {
         console.error("❌ خطأ في جلب المشاريع:", error);
@@ -169,7 +169,7 @@ export default function PortfolioPageClient() {
           return;
         }
 
-        setError(error instanceof Error ? error.message : "��دث خطأ غير متوقع");
+        setError(error instanceof Error ? error.message : "حدث خطأ غير متوقع");
         setProjects([]);
       } finally {
         setLoading(false);
@@ -255,7 +255,7 @@ export default function PortfolioPageClient() {
           throw new Error(data.error || "فشل في جلب المشاريع");
         }
       } catch (error) {
-        console.error("❌ خطأ في ج��ب المشاريع:", error);
+        console.error("❌ خطأ في جلب المشاريع:", error);
 
         // Don't retry on abort
         if (error instanceof Error && error.name === "AbortError") {
@@ -287,7 +287,7 @@ export default function PortfolioPageClient() {
 
   const handleRetry = () => {
     setRetryCount((prev) => prev + 1);
-    fetchProjects();
+    fetchProjectsStable();
   };
 
   const filteredAndSortedProjects = useMemo(() => {
@@ -334,7 +334,7 @@ export default function PortfolioPageClient() {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             جاري تحميل المشاريع...
           </h3>
-          <p className="text-gray-600">يرجى الانتظار ق��يلاً</p>
+          <p className="text-gray-600">يرجى الانتظار قليلاً</p>
         </div>
       </div>
     );
@@ -374,7 +374,7 @@ export default function PortfolioPageClient() {
       <section className="bg-gradient-to-br from-primary via-primary/90 to-accent py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            معرض أعمال��ا المتميزة
+            معرض أعمالنا المتميزة
           </h1>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
             استكشف مجموعة من أروع المشاريع التي نفذناها بأعلى معايير الجودة
