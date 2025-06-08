@@ -104,8 +104,8 @@ export default function PortfolioPageClient() {
     fetchProjectsStable();
   }, [fetchProjectsStable]);
 
-  // Update fetchProjects to use debouncedSearchTerm
-  const fetchProjectsStable = useCallback(
+  // Fetch projects function with timeout and debouncing
+  const fetchProjects = useCallback(
     async (retryAttempt = 0) => {
       try {
         setLoading(true);
