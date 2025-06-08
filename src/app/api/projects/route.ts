@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
       timeoutPromise(10000), // 10 second timeout
     ]);
 
-    // تحويل البيانات لتتوافق مع التنس��ق المطلوب
+    // تحويل البيانات لتتوافق مع التنسيق المطلوب
     const formattedProjects = projects.map((project) => ({
       ...project,
       views: project.views || 0,
@@ -139,8 +139,45 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("❌ خطأ في جلب المشاريع:", error);
+
+    // Check if it's a timeout error
+    if (error instanceof Error && error.message.includes("timeout")) {
+      return NextResponse.json(
+        {
+          error: "انتهت المهلة الزمنية للاتصال بقاعدة البيانات",
+          success: false,
+          projects: [],
+          total: 0,
+        },
+        { status: 504 },
+      );
+    }
+
+    // Database connection error
+    if (
+      error instanceof Error &&
+      (error.message.includes("connection") ||
+        error.message.includes("connect") ||
+        error.message.includes("ECONNREFUSED"))
+    ) {
+      return NextResponse.json(
+        {
+          error: "فشل الاتصال بقاعدة البيانات",
+          success: false,
+          projects: [],
+          total: 0,
+        },
+        { status: 503 },
+      );
+    }
+
     return NextResponse.json(
-      { error: "حدث خطأ في جلب المشاريع" },
+      {
+        error: "حدث خطأ في جلب المشاريع",
+        success: false,
+        projects: [],
+        total: 0,
+      },
       { status: 500 },
     );
   }
