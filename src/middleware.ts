@@ -60,19 +60,25 @@ function checkRateLimit(ip: string): boolean {
 // فحص الصلاحيات للمسارات المحمية
 async function checkAuth(request: NextRequest): Promise<boolean> {
   try {
-    // البحث عن JWT token في cookies
-    const token = request.cookies.get("auth-token")?.value;
+    // البحث عن JWT token في cookies - نفس الاسم المستخدم في login API
+    const token = request.cookies.get("admin-token")?.value;
 
     if (!token) {
       return false;
     }
 
-    // يمكن إضافة تحقق من صحة التوكن هنا
-    // const isValid = await verifyJWT(token)
-    // return isValid
-
-    // للتبسيط، نتحقق من وجود التوكن فقط
-    return true;
+    // التحقق من صحة التوكن
+    try {
+      const jwt = await import("jsonwebtoken");
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || "your-secret-key",
+      );
+      return !!decoded;
+    } catch (jwtError) {
+      console.error("Invalid JWT token:", jwtError);
+      return false;
+    }
   } catch (error) {
     console.error("خطأ في فحص المصادقة:", error);
     return false;
@@ -207,7 +213,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // معالجة خاصة لـ API routes
+  // ��عالجة خاصة لـ API routes
   if (isApiRoute) {
     const response = NextResponse.next();
 
