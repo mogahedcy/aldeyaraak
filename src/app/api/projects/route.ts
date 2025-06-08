@@ -64,26 +64,46 @@ export async function GET(request: NextRequest) {
       orderBy,
     });
 
-    const projects = await prisma.project.findMany({
-      where,
-      include: {
-        mediaItems: {
-          orderBy: { order: "asc" },
+    // Test database connection first
+    try {
+      await Promise.race([prisma.$queryRaw`SELECT 1`, timeoutPromise(5000)]);
+    } catch (dbError) {
+      console.error("❌ خطأ في الاتصال بقاعدة البيانات:", dbError);
+      return NextResponse.json(
+        {
+          error: "فشل الاتصال بقاعدة البيانات",
+          success: false,
+          projects: [],
+          total: 0,
         },
-        tags: true,
-        materials: true,
-        _count: {
-          select: {
-            comments: true,
+        { status: 503 },
+      );
+    }
+
+    // Fetch projects with timeout protection
+    const projects = await Promise.race([
+      prisma.project.findMany({
+        where,
+        include: {
+          mediaItems: {
+            orderBy: { order: "asc" },
+          },
+          tags: true,
+          materials: true,
+          _count: {
+            select: {
+              comments: true,
+            },
           },
         },
-      },
-      orderBy,
-      skip,
-      take,
-    });
+        orderBy,
+        skip,
+        take,
+      }),
+      timeoutPromise(10000), // 10 second timeout
+    ]);
 
-    // تحويل البيانات لتتوافق مع التنسيق المطلوب
+    // تحويل البيانات لتتوافق مع التنس��ق المطلوب
     const formattedProjects = projects.map((project) => ({
       ...project,
       views: project.views || 0,
@@ -101,7 +121,10 @@ export async function GET(request: NextRequest) {
       })),
     });
 
-    const totalCount = await prisma.project.count({ where });
+    const totalCount = await Promise.race([
+      prisma.project.count({ where }),
+      timeoutPromise(5000),
+    ]);
 
     return NextResponse.json({
       success: true,
