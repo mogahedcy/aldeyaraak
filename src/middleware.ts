@@ -24,6 +24,9 @@ const publicPaths = [
   "/api/health-check",
   "/api/auth/login",
   "/api/auth/logout",
+  "/api/db-status",
+  "/api/error-report",
+  "/api/reviews",
 ];
 
 // Rate limiting - تتبع الطلبات
