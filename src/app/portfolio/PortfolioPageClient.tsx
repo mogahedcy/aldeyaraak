@@ -197,7 +197,7 @@ export default function PortfolioPageClient() {
 
   const handleRetry = () => {
     setRetryCount((prev) => prev + 1);
-    fetchProjectsStable();
+    fetchProjects();
   };
 
   const filteredAndSortedProjects = useMemo(() => {
@@ -287,7 +287,7 @@ export default function PortfolioPageClient() {
             معرض أعمالنا المتميزة
           </h1>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            استكشف مجموعة من أروع المشاريع التي نفذ��اها بأعلى معايير الجودة
+            استكشف مجموعة من أروع المشاريع التي نفذناها بأعلى معايير الجودة
             والإتقان
           </p>
 
@@ -720,7 +720,7 @@ function ProjectListItem({ project }: { project: Project }) {
             />
           ) : mainVideo ? (
             <div className="relative w-full h-full bg-gray-900">
-              {/* صورة مصغرة كخلفية */}
+              {/* صورة مصغرة كخل��ية */}
               {mainVideo.thumbnail && (
                 <Image
                   src={mainVideo.thumbnail}
