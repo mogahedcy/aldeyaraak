@@ -21,12 +21,15 @@ const publicPaths = [
   "/terms",
   "/quote",
   "/login",
+  "/test-dashboard",
   "/api/health-check",
   "/api/auth/login",
   "/api/auth/logout",
+  "/api/auth/verify",
   "/api/db-status",
   "/api/error-report",
   "/api/reviews",
+  "/api/setup-admin",
 ];
 
 // Rate limiting - تتبع الطلبات
@@ -210,7 +213,7 @@ export async function middleware(request: NextRequest) {
           { status: 401 },
         );
       } else {
-        // إعادة توجيه للصفحة الرئيسية أو صفحة تسجيل الدخول
+        // إعادة توجيه للصفحة الرئيسية أو صفحة تسجيل ا��دخول
         const url = request.nextUrl.clone();
         url.pathname = "/login";
         url.searchParams.set("callbackUrl", pathname);
