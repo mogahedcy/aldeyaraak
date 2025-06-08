@@ -172,8 +172,20 @@ export async function middleware(request: NextRequest) {
   const isProtectedApiPath = protectedApiPaths.some((path) =>
     pathname.startsWith(path),
   );
+  const isWriteProtectedApiPath = writeProtectedApiPaths.some((path) =>
+    pathname.startsWith(path),
+  );
 
-  if (isProtectedPath || isProtectedApiPath) {
+  // للمسارات المحمية للكتابة، نتحقق من نوع الطلب
+  const isWriteOperation = ["POST", "PUT", "DELETE", "PATCH"].includes(
+    request.method,
+  );
+  const needsAuth =
+    isProtectedPath ||
+    isProtectedApiPath ||
+    (isWriteProtectedApiPath && isWriteOperation);
+
+  if (needsAuth) {
     const isAuthenticated = await checkAuth(request);
 
     if (!isAuthenticated) {
