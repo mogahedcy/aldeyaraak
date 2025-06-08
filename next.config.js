@@ -11,16 +11,6 @@ const nextConfig = {
     },
   },
 
-  // تحسين Turbopack (إعداد مستقل)
-  turbo: {
-    rules: {
-      "*.svg": {
-        loaders: ["@svgr/webpack"],
-        as: "*.js",
-      },
-    },
-  },
-
   // تحسين حزم الخادم الخارجية
   serverExternalPackages: ["@prisma/client", "bcryptjs", "sharp"],
 
