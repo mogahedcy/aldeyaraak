@@ -179,7 +179,7 @@ export default function PortfolioPageClient() {
           console.log(`🔄 إعادة المحاولة ${retryAttempt + 1}/3...`);
           setTimeout(
             () => {
-              fetchProjectsStable(retryAttempt + 1);
+              fetchProjects(retryAttempt + 1);
             },
             1000 * (retryAttempt + 1),
           ); // تأخير متدرج
@@ -287,7 +287,7 @@ export default function PortfolioPageClient() {
             معرض أعمالنا المتميزة
           </h1>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            استكشف مجموعة من أروع المشاريع التي نفذناها بأعلى معايير الجودة
+            استكشف مجموعة من أروع المشاريع التي نفذ��اها بأعلى معايير الجودة
             والإتقان
           </p>
 
