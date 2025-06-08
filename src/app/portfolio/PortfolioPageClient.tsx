@@ -101,8 +101,8 @@ export default function PortfolioPageClient() {
 
   // Fetch projects when dependencies change
   useEffect(() => {
-    fetchProjects();
-  }, [selectedCategory, currentPage, debouncedSearchTerm, sortBy]);
+    fetchProjectsStable();
+  }, [fetchProjectsStable]);
 
   // Update fetchProjects to use debouncedSearchTerm
   const fetchProjectsStable = useCallback(
@@ -150,7 +150,7 @@ export default function PortfolioPageClient() {
         if (data.success) {
           setProjects(data.projects || []);
           setTotalProjects(data.total || 0);
-          console.log("✅ تم جلب المشاريع بنجا��:", data.projects?.length || 0);
+          console.log("✅ تم جلب المشاريع بنجاح:", data.projects?.length || 0);
         } else if (data.projects) {
           // التوافق مع التنسيق القديم
           setProjects(data.projects || []);
@@ -748,7 +748,7 @@ function ProjectListItem({ project }: { project: Project }) {
                 }}
                 onLoadedData={(e) => {
                   console.log(
-                    "تم تحميل الفيدي�� في القائمة بنجاح:",
+                    "تم تحميل الفيديو في القائمة بنجاح:",
                     project.title,
                   );
                   const video = e.target as HTMLVideoElement;
@@ -775,7 +775,7 @@ function ProjectListItem({ project }: { project: Project }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                ��يديو
+                فيديو
               </div>
 
               {/* أيقونة تشغيل */}
