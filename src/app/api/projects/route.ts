@@ -188,15 +188,38 @@ export async function GET(request: NextRequest) {
       await Promise.race([prisma.$queryRaw`SELECT 1`, timeoutPromise(5000)]);
     } catch (dbError) {
       console.error("❌ خطأ في الاتصال بقاعدة البيانات:", dbError);
-      return NextResponse.json(
-        {
-          error: "فشل الاتصال بقاعدة البيانات",
-          success: false,
-          projects: [],
-          total: 0,
+      console.log("🔄 استخدام البيانات التجريبية...");
+
+      // Filter fallback data based on query params
+      let filteredProjects = [...fallbackProjects];
+
+      if (category && category !== "all") {
+        filteredProjects = filteredProjects.filter(
+          (p) => p.category === category,
+        );
+      }
+
+      if (featured === "true") {
+        filteredProjects = filteredProjects.filter((p) => p.featured);
+      }
+
+      // Apply pagination
+      const startIndex = skip;
+      const endIndex = skip + take;
+      const paginatedProjects = filteredProjects.slice(startIndex, endIndex);
+
+      return NextResponse.json({
+        success: true,
+        projects: paginatedProjects,
+        total: filteredProjects.length,
+        pagination: {
+          total: filteredProjects.length,
+          page: page ? Number.parseInt(page) : 1,
+          limit: take,
+          totalPages: Math.ceil(filteredProjects.length / take),
         },
-        { status: 503 },
-      );
+        fallback: true,
+      });
     }
 
     // Fetch projects with timeout protection
