@@ -88,96 +88,6 @@ export default function PortfolioPageClient() {
 
   const projectsPerPage = 12;
 
-  const fetchProjects = useCallback(
-    async (retryAttempt = 0) => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const params = new URLSearchParams({
-          category: selectedCategory === "الكل" ? "all" : selectedCategory,
-          page: currentPage.toString(),
-          limit: projectsPerPage.toString(),
-          search: searchTerm,
-          sort: sortBy,
-        });
-
-        console.log("🔍 جلب المشاريع مع المعايير:", {
-          category: selectedCategory,
-          page: currentPage,
-          search: searchTerm,
-          sort: sortBy,
-        });
-
-        // Add timeout and signal to prevent hanging requests
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
-        const response = await fetch(`/api/projects?${params}`, {
-          signal: controller.signal,
-          headers: {
-            "Cache-Control": "no-cache",
-          },
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        console.log("📦 البيانات المستلمة من API:", data);
-
-        if (data.success) {
-          setProjects(data.projects || []);
-          setTotalProjects(data.total || 0);
-          console.log("✅ تم جلب المشاريع بنجاح:", data.projects?.length || 0);
-        } else if (data.projects) {
-          // التوافق مع التنسيق القديم
-          setProjects(data.projects || []);
-          setTotalProjects(
-            data.pagination?.total || data.projects?.length || 0,
-          );
-          console.log(
-            "✅ تم جلب المشاريع بنجاح (تنسيق قديم):",
-            data.projects?.length || 0,
-          );
-        } else {
-          throw new Error(data.error || "فشل في جلب المشا��يع");
-        }
-      } catch (error) {
-        console.error("❌ خطأ في جلب المشاريع:", error);
-
-        // Don't retry on abort
-        if (error instanceof Error && error.name === "AbortError") {
-          console.log("⏰ تم إلغاء الطلب بسبب انتهاء المهلة الزمنية");
-          setError("انتهت المهلة الزمنية للطلب");
-          return;
-        }
-
-        // إعادة المحاولة تلقائياً (حتى 3 مرات)
-        if (retryAttempt < 3) {
-          console.log(`🔄 إعادة المحاولة ${retryAttempt + 1}/3...`);
-          setTimeout(
-            () => {
-              fetchProjects(retryAttempt + 1);
-            },
-            1000 * (retryAttempt + 1),
-          ); // تأخير متدرج
-          return;
-        }
-
-        setError(error instanceof Error ? error.message : "حدث خطأ غير متوقع");
-        setProjects([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [selectedCategory, currentPage, searchTerm, sortBy],
-  );
-
   // Debounce search term to prevent too many API calls
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
@@ -240,7 +150,7 @@ export default function PortfolioPageClient() {
         if (data.success) {
           setProjects(data.projects || []);
           setTotalProjects(data.total || 0);
-          console.log("✅ تم جلب المشاريع بنجاح:", data.projects?.length || 0);
+          console.log("✅ تم جلب المشاريع بنجا��:", data.projects?.length || 0);
         } else if (data.projects) {
           // التوافق مع التنسيق القديم
           setProjects(data.projects || []);
@@ -838,7 +748,7 @@ function ProjectListItem({ project }: { project: Project }) {
                 }}
                 onLoadedData={(e) => {
                   console.log(
-                    "تم تحميل الفيديو في القائمة بنجاح:",
+                    "تم تحميل الفيدي�� في القائمة بنجاح:",
                     project.title,
                   );
                   const video = e.target as HTMLVideoElement;
@@ -865,7 +775,7 @@ function ProjectListItem({ project }: { project: Project }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                فيديو
+                ��يديو
               </div>
 
               {/* أيقونة تشغيل */}
