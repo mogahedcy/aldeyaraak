@@ -5,18 +5,19 @@ const nextConfig = {
 
   // تحسين الترجمة والتجميع
   experimental: {
-    // تحسين Turbopack
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
-      },
-    },
     staleTimes: {
       dynamic: 30,
       static: 180,
+    },
+  },
+
+  // تحسين Turbopack (إعداد مستقل)
+  turbo: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
     },
   },
 
