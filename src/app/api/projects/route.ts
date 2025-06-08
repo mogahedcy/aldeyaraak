@@ -12,6 +12,125 @@ const timeoutPromise = (ms: number) => {
   });
 };
 
+// Fallback sample data
+const fallbackProjects = [
+  {
+    id: "sample-1",
+    title: "مظلة خشبية فاخرة",
+    description:
+      "مظلة خشبية مصممة خصيصاً لحديقة فيلا في جدة بأحدث التقنيات والمواد عالية الجودة",
+    category: "مظلات",
+    location: "جدة - حي الزهراء",
+    completionDate: "2024-01-15T00:00:00.000Z",
+    client: "عائلة الأحمد",
+    featured: true,
+    views: 150,
+    likes: 25,
+    rating: 4.8,
+    projectDuration: "15 يوم",
+    projectCost: "50,000 ريال",
+    mediaItems: [
+      {
+        id: "media-1",
+        type: "IMAGE",
+        src: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2053&q=80",
+        thumbnail:
+          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+        title: "المظلة من الأمام",
+        description: "منظر شامل للمظلة الخشبية",
+        order: 0,
+      },
+    ],
+    tags: [
+      { name: "خشب طبيعي" },
+      { name: "مقاوم للعوامل الجوية" },
+      { name: "تصميم عصري" },
+    ],
+    materials: [
+      { name: "خشب السيكوا" },
+      { name: "مسامير ستانلس ستيل" },
+      { name: "طلاء واقي" },
+    ],
+    createdAt: "2024-01-15T00:00:00.000Z",
+    updatedAt: "2024-01-15T00:00:00.000Z",
+  },
+  {
+    id: "sample-2",
+    title: "ساتر خشبي مع إضاءة LED",
+    description: "ساتر خشبي مبتكر مزود بإضاءة LED للحدائق والمساحات الخارجية",
+    category: "سواتر",
+    location: "جدة - أبحر الشمالية",
+    completionDate: "2024-02-01T00:00:00.000Z",
+    client: "مؤسسة النور التجارية",
+    featured: false,
+    views: 89,
+    likes: 12,
+    rating: 4.5,
+    projectDuration: "10 أيام",
+    projectCost: "30,000 ريال",
+    mediaItems: [
+      {
+        id: "media-2",
+        type: "IMAGE",
+        src: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+        thumbnail:
+          "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+        title: "الساتر الخشبي مع الإضاءة",
+        description: "ساتر خشبي مع إضاءة LED ليلية",
+        order: 0,
+      },
+    ],
+    tags: [{ name: "إضاءة LED" }, { name: "خصوصية" }, { name: "طاقة موفرة" }],
+    materials: [
+      { name: "خشب الصنوبر" },
+      { name: "شرائط LED" },
+      { name: "محول كهربائي" },
+    ],
+    createdAt: "2024-02-01T00:00:00.000Z",
+    updatedAt: "2024-02-01T00:00:00.000Z",
+  },
+  {
+    id: "sample-3",
+    title: "تنسيق حديقة فيلا عصرية",
+    description:
+      "تنسيق شامل لحديقة فيلا بتصميم عصري يجمع بين الجمال والوظائف العملية",
+    category: "تنسيق حدائق",
+    location: "جدة - حي الروضة",
+    completionDate: "2024-01-20T00:00:00.000Z",
+    client: "عائلة الغامدي",
+    featured: true,
+    views: 203,
+    likes: 38,
+    rating: 4.9,
+    projectDuration: "25 يوم",
+    projectCost: "75,000 ريال",
+    mediaItems: [
+      {
+        id: "media-3",
+        type: "IMAGE",
+        src: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+        thumbnail:
+          "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+        title: "تنسيق الحديقة الأمامية",
+        description: "منظر شامل للحديقة المنسقة",
+        order: 0,
+      },
+    ],
+    tags: [
+      { name: "نباتات محلية" },
+      { name: "ري ذكي" },
+      { name: "صديق للبيئة" },
+    ],
+    materials: [
+      { name: "نباتات الزينة" },
+      { name: "نظام ري تلقائي" },
+      { name: "أحجار طبيعية" },
+    ],
+    createdAt: "2024-01-20T00:00:00.000Z",
+    updatedAt: "2024-01-20T00:00:00.000Z",
+  },
+];
+
 // GET - جلب جميع المشاريع
 export async function GET(request: NextRequest) {
   try {
