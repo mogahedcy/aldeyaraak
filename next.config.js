@@ -5,15 +5,7 @@ const nextConfig = {
 
   // تحسين الترجمة والتجميع
   experimental: {
-    // تحسين tracing للملفات
-    outputFileTracingRoot: undefined,
-    // تحسين server components
-    serverComponentsExternalPackages: [
-      "@prisma/client",
-      "bcryptjs",
-      "jsonwebtoken",
-    ],
-    // تحسين التخزين المؤقت
+    // إزالة الخيارات غير المدعومة واستبدالها بالصحيحة
     staleTimes: {
       dynamic: 30,
       static: 180,
@@ -28,10 +20,7 @@ const nextConfig = {
     // إلغاء تعطيل تحسين الصور لتحسين الأداء
     unoptimized: false,
 
-    // تحسين جودة الصور
-    quality: 85,
-
-    // تحسين التنسيقات
+    // تحسين التنسيقات - إزالة quality المباشر واستخدام formats
     formats: ["image/webp", "image/avif"],
 
     // أحجام محسنة للأجهزة المختلفة
@@ -177,10 +166,6 @@ const nextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=31536000; includeSubDomains",
-          },
         ],
       },
       {
@@ -269,23 +254,6 @@ const nextConfig = {
     // تجاهل أخطاء ESLint في البناء
     ignoreDuringBuilds: false,
   },
-
-  // تحسين التحليل والمراقبة
-  ...(process.env.ANALYZE === "true" && {
-    // إضافة bundle analyzer في حالة التحليل
-    webpack: (config, options) => {
-      if (!options.dev && !options.isServer) {
-        const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
-        config.plugins.push(
-          new BundleAnalyzerPlugin({
-            analyzerMode: "static",
-            reportFilename: "bundle-analyzer-report.html",
-          }),
-        );
-      }
-      return config;
-    },
-  }),
 };
 
 module.exports = nextConfig;
