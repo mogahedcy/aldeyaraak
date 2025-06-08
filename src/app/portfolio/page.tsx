@@ -32,7 +32,7 @@ export default function PortfolioPage() {
 
       {/* محتوى الصفحة */}
       <main className="flex-1">
-        <PortfolioPageClient />
+        <PortfolioPageClientSimple />
       </main>
 
       {/* الفوتر */}
