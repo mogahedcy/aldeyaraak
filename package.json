@@ -1,13 +1,27 @@
 {
   "name": "aldeyar-global-jeddah",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0 --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "bunx biome lint --write && bunx tsc --noEmit",
-    "format": "bunx biome format --write"
+    "format": "bunx biome format --write",
+    "type-check": "tsc --noEmit",
+    "build:analyze": "ANALYZE=true npm run build",
+    "build:production": "NODE_ENV=production npm run build",
+    "postbuild": "next-sitemap",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "node scripts/seed.js",
+    "health": "curl -f http://localhost:3000/api/health-check || exit 1",
+    "clean": "rm -rf .next out node_modules/.cache",
+    "reinstall": "rm -rf node_modules package-lock.json && npm install",
+    "test": "echo \"No tests specified\" && exit 0",
+    "precommit": "npm run lint && npm run type-check"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
@@ -31,6 +45,7 @@
     "prisma": "^6.8.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "sharp": "^0.33.5",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.25.51"
@@ -44,8 +59,50 @@
     "@types/react-dom": "^18.3.7",
     "eslint": "^9.27.0",
     "eslint-config-next": "15.1.7",
+    "next-sitemap": "^4.2.3",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.3"
-  }
+    "typescript": "^5.8.3",
+    "webpack-bundle-analyzer": "^4.10.2"
+  },
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aldeyar-global/aldeyar-website.git"
+  },
+  "keywords": [
+    "nextjs",
+    "react",
+    "typescript",
+    "tailwindcss",
+    "prisma",
+    "cloudinary",
+    "aldeyar",
+    "jeddah",
+    "مظلات",
+    "برجولات",
+    "سواتر"
+  ],
+  "author": {
+    "name": "مؤسسة الديار العالمية",
+    "email": "info@aldeyar-jeddah.com",
+    "url": "https://aldeyarksa.tech"
+  },
+  "license": "UNLICENSED",
+  "homepage": "https://aldeyarksa.tech"
 }
