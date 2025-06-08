@@ -3,12 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 // مسارات محمية تحتاج مصادقة
 const protectedPaths = ["/dashboard", "/admin"];
 
-// مسارات API محمية
-const protectedApiPaths = [
-  "/api/projects",
-  "/api/auth/change-password",
-  "/api/upload",
-];
+// مسارات API محمية (فقط للكتابة)
+const protectedApiPaths = ["/api/auth/change-password", "/api/upload"];
+
+// مسارات API محمية للكتابة فقط (POST, PUT, DELETE)
+const writeProtectedApiPaths = ["/api/projects"];
 
 // مسارات عامة (لا تحتاج مصادقة)
 const publicPaths = [
