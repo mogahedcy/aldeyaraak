@@ -169,7 +169,7 @@ export default function PortfolioPageClient() {
           return;
         }
 
-        setError(error instanceof Error ? error.message : "حدث خطأ غير متوقع");
+        setError(error instanceof Error ? error.message : "��دث خطأ غير متوقع");
         setProjects([]);
       } finally {
         setLoading(false);
@@ -178,9 +178,112 @@ export default function PortfolioPageClient() {
     [selectedCategory, currentPage, searchTerm, sortBy],
   );
 
+  // Debounce search term to prevent too many API calls
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch projects when dependencies change
   useEffect(() => {
     fetchProjects();
-  }, [fetchProjects]);
+  }, [selectedCategory, currentPage, debouncedSearchTerm, sortBy]);
+
+  // Update fetchProjects to use debouncedSearchTerm
+  const fetchProjectsStable = useCallback(
+    async (retryAttempt = 0) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const params = new URLSearchParams({
+          category: selectedCategory === "الكل" ? "all" : selectedCategory,
+          page: currentPage.toString(),
+          limit: projectsPerPage.toString(),
+          search: debouncedSearchTerm,
+          sort: sortBy,
+        });
+
+        console.log("🔍 جلب المشاريع مع المعايير:", {
+          category: selectedCategory,
+          page: currentPage,
+          search: debouncedSearchTerm,
+          sort: sortBy,
+        });
+
+        // Add timeout and signal to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        const response = await fetch(`/api/projects?${params}`, {
+          signal: controller.signal,
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        console.log("📦 البيانات المستلمة من API:", data);
+
+        if (data.success) {
+          setProjects(data.projects || []);
+          setTotalProjects(data.total || 0);
+          console.log("✅ تم جلب المشاريع بنجاح:", data.projects?.length || 0);
+        } else if (data.projects) {
+          // التوافق مع التنسيق القديم
+          setProjects(data.projects || []);
+          setTotalProjects(
+            data.pagination?.total || data.projects?.length || 0,
+          );
+          console.log(
+            "✅ تم جلب المشاريع بنجاح (تنسيق قديم):",
+            data.projects?.length || 0,
+          );
+        } else {
+          throw new Error(data.error || "فشل في جلب المشاريع");
+        }
+      } catch (error) {
+        console.error("❌ خطأ في ج��ب المشاريع:", error);
+
+        // Don't retry on abort
+        if (error instanceof Error && error.name === "AbortError") {
+          console.log("⏰ تم إلغاء الطلب بسبب انتهاء المهلة الزمنية");
+          setError("انتهت المهلة الزمنية للطلب");
+          return;
+        }
+
+        // إعادة المحاولة تلقائياً (حتى 3 مرات)
+        if (retryAttempt < 3) {
+          console.log(`🔄 إعادة المحاولة ${retryAttempt + 1}/3...`);
+          setTimeout(
+            () => {
+              fetchProjectsStable(retryAttempt + 1);
+            },
+            1000 * (retryAttempt + 1),
+          ); // تأخير متدرج
+          return;
+        }
+
+        setError(error instanceof Error ? error.message : "حدث خطأ غير متوقع");
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedCategory, currentPage, debouncedSearchTerm, sortBy],
+  );
 
   const handleRetry = () => {
     setRetryCount((prev) => prev + 1);
@@ -231,7 +334,7 @@ export default function PortfolioPageClient() {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             جاري تحميل المشاريع...
           </h3>
-          <p className="text-gray-600">يرجى الانتظار قليلاً</p>
+          <p className="text-gray-600">يرجى الانتظار ق��يلاً</p>
         </div>
       </div>
     );
@@ -271,7 +374,7 @@ export default function PortfolioPageClient() {
       <section className="bg-gradient-to-br from-primary via-primary/90 to-accent py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            معرض أعمالنا المتميزة
+            معرض أعمال��ا المتميزة
           </h1>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
             استكشف مجموعة من أروع المشاريع التي نفذناها بأعلى معايير الجودة
