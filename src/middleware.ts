@@ -69,10 +69,12 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
 
     // البحث عن JWT token في cookies - نفس الاسم المستخدم في login API
     const adminToken = request.cookies.get("admin-token")?.value;
+    const bypassToken = request.cookies.get("bypass-token")?.value;
     const authStatus = request.cookies.get("auth-status")?.value;
 
     console.log(`🔍 Auth check for ${pathname}:`);
     console.log(`  - admin-token exists: ${!!adminToken}`);
+    console.log(`  - bypass-token exists: ${!!bypassToken}`);
     console.log(`  - auth-status: ${authStatus}`);
     console.log(
       `  - all cookies: ${request.cookies
@@ -80,6 +82,21 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
         .map((c) => c.name)
         .join(", ")}`,
     );
+
+    // فحص bypass token أولاً
+    if (bypassToken) {
+      try {
+        const jwt = await import("jsonwebtoken");
+        const decoded = jwt.verify(
+          bypassToken,
+          process.env.JWT_SECRET || "your-secret-key",
+        );
+        console.log(`✅ Valid bypass token found`);
+        return true;
+      } catch (bypassError) {
+        console.log("❌ Invalid bypass token:", bypassError.message);
+      }
+    }
 
     if (!adminToken) {
       console.log("❌ No admin-token cookie found");
