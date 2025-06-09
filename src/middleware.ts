@@ -43,6 +43,8 @@ const publicPaths = [
   "/api/auth/new-logout",
   "/api/simple-login",
   "/api/check-login",
+  "/api/fast-login",
+  "/fast-login",
   "/api/debug-admin",
   "/api/debug-middleware",
   "/test-new-login",
