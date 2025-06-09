@@ -41,6 +41,7 @@ const publicPaths = [
   "/api/auth/new-login",
   "/api/auth/check-session",
   "/api/auth/new-logout",
+  "/api/simple-login",
   "/api/debug-admin",
   "/api/debug-middleware",
   "/test-new-login",
@@ -147,7 +148,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isApiRoute = pathname.startsWith("/api");
 
-  // الحصول على IP العميل
+  // الحصول على IP الع��يل
   const clientIP =
     request.ip ||
     request.headers.get("x-forwarded-for")?.split(",")[0] ||
