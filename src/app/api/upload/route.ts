@@ -1,35 +1,73 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { uploadToCloudinary } from '@/lib/cloudinary';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { type NextRequest } from "next/server";
+import { uploadToCloudinary } from "@/lib/cloudinary";
+import { writeFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
+import path from "path";
 
 // التحقق من توفر إعدادات Cloudinary
 const isCloudinaryAvailable = Boolean(
   process.env.CLOUDINARY_CLOUD_NAME &&
-  process.env.CLOUDINARY_API_KEY &&
-  process.env.CLOUDINARY_API_SECRET &&
-  process.env.CLOUDINARY_CLOUD_NAME !== 'demo'
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET &&
+    process.env.CLOUDINARY_CLOUD_NAME !== "demo",
 );
+
+// إعدادات محسنة للرفع
+const UPLOAD_CONFIG = {
+  maxFileSize: {
+    image: 20 * 1024 * 1024, // 20MB للصور
+    video: 100 * 1024 * 1024, // 100MB للفيديو
+  },
+  allowedTypes: {
+    image: ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"],
+    video: [
+      "video/mp4",
+      "video/mov",
+      "video/avi",
+      "video/webm",
+      "video/quicktime",
+    ],
+  },
+};
+
+// دالة مساعدة لإرجاع استجابة JSON نظيفة
+function createJSONResponse(data: any, status: number = 200) {
+  const response = new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+  return response;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
+    console.log("🚀 بدء عملية رفع الملفات...");
 
-    // دعم رفع ملف واحد أو عدة ملفات
-    const files = formData.getAll('files') as File[];
-    const singleFile = formData.get('file') as File;
+    // Add proper error handling for form data parsing
+    let formData;
+    try {
+      formData = await request.formData();
+    } catch (formError) {
+      console.error("❌ خطأ في تحليل البيانات:", formError);
+      return createJSONResponse(
+        {
+          success: false,
+          error: "فشل في تحليل البيانات المرسلة",
+        },
+        400,
+      );
+    }
 
-    console.log('📤 محاولة رفع ملف:', {
-      singleFile: !!singleFile,
-      singleFileName: singleFile?.name,
-      singleFileType: singleFile?.type,
-      multipleFiles: files.length,
-      cloudinaryAvailable: isCloudinaryAvailable
-    });
+    const files = formData.getAll("files") as File[];
+    const singleFile = formData.get("file") as File;
 
     let filesToProcess: File[] = [];
-
     if (singleFile) {
       filesToProcess = [singleFile];
     } else if (files && files.length > 0) {
@@ -37,176 +75,206 @@ export async function POST(request: NextRequest) {
     }
 
     if (filesToProcess.length === 0) {
-      console.log('❌ لم يتم تحديد أي ملفات');
-      return NextResponse.json(
-        { error: 'لم يتم تحديد أي ملفات' },
-        { status: 400 }
+      return createJSONResponse(
+        {
+          success: false,
+          error: "لم يتم تحديد أي ملفات للرفع",
+        },
+        400,
       );
     }
 
-    const uploadedFiles = [];
+    console.log(`📋 سيتم رفع ${filesToProcess.length} ملف`);
 
-    // إعداد التخزين المحلي كـ fallback
-    let uploadDir = '';
-    if (!isCloudinaryAvailable) {
-      uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      if (!existsSync(uploadDir)) {
-        await mkdir(uploadDir, { recursive: true });
-        console.log('📁 تم إنشاء مجلد uploads (fallback mode)');
-      }
+    // إعداد مجلد التحميل المحلي كـ backup
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true });
     }
 
-    for (const file of filesToProcess) {
-      if (!file || file.size === 0) {
-        console.log('⚠️ تجاهل ملف فارغ');
-        continue;
-      }
+    const results = [];
 
-      console.log('🔍 معالجة ملف:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
+    for (let i = 0; i < filesToProcess.length; i++) {
+      const file = filesToProcess[i];
 
-      // التحقق من نوع الملف
-      const allowedTypes = [
-        'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
-        'video/mp4', 'video/mov', 'video/avi', 'video/webm', 'video/quicktime', 'video/x-msvideo'
-      ];
-
-      if (!allowedTypes.includes(file.type)) {
-        console.log('❌ نوع ملف غير مدعوم:', file.type);
-        continue;
-      }
-
-      // التحقق من حجم الملف
-      const maxSize = isCloudinaryAvailable ? 100 * 1024 * 1024 : 50 * 1024 * 1024; // 100MB for Cloudinary, 50MB for local
-      if (file.size > maxSize) {
-        console.log('❌ ملف كبير جداً:', file.size);
-        continue;
-      }
+      console.log(
+        `📤 معالجة ملف ${i + 1}/${filesToProcess.length}: ${file.name}`,
+      );
 
       try {
-        let uploadedFile;
+        // التحقق من نوع الملف
+        const isVideo = file.type.startsWith("video/");
+        const isImage = file.type.startsWith("image/");
+
+        if (!isVideo && !isImage) {
+          throw new Error(`نوع الملف غير مدعوم: ${file.type}`);
+        }
+
+        // التحقق من الأنواع المسموحة
+        const allowedTypes = isVideo
+          ? UPLOAD_CONFIG.allowedTypes.video
+          : UPLOAD_CONFIG.allowedTypes.image;
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`نوع الملف غير مدعوم: ${file.type}`);
+        }
+
+        // التحقق من حجم الملف
+        const maxSize = isVideo
+          ? UPLOAD_CONFIG.maxFileSize.video
+          : UPLOAD_CONFIG.maxFileSize.image;
+        if (file.size > maxSize) {
+          const maxSizeMB = Math.round(maxSize / 1024 / 1024);
+          throw new Error(`حجم الملف كبير جداً. الحد الأقصى: ${maxSizeMB}MB`);
+        }
+
+        console.log(`📊 معلومات الملف:`, {
+          name: file.name,
+          type: file.type,
+          size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+          isVideo,
+          cloudinaryAvailable: isCloudinaryAvailable,
+        });
+
+        let uploadResult;
 
         if (isCloudinaryAvailable) {
           // رفع إلى Cloudinary
-          console.log('☁️ رفع إلى Cloudinary...');
-          const result = await uploadToCloudinary(file, {
-            folder: 'portfolio/projects',
-            transformation: file.type.startsWith('video/') ? {
-              quality: 'auto',
-              fetch_format: 'auto',
-            } : {
-              quality: 'auto',
-              fetch_format: 'auto',
-              flags: 'progressive',
-              width: 1200,
-              height: 800,
-              crop: 'limit'
-            }
+          console.log("☁️ رفع إلى Cloudinary...");
+
+          const cloudinaryResult = await uploadToCloudinary(file, {
+            folder: "portfolio/projects",
+            resource_type: isVideo ? "video" : "image",
+            transformation: isVideo
+              ? {
+                  quality: "auto",
+                  fetch_format: "auto",
+                  width: 1280,
+                  height: 720,
+                  crop: "limit",
+                  bit_rate: "1m",
+                  // إضافة إعدادات للفيديو
+                  flags: "streaming_attachment",
+                  streaming_profile: "hd",
+                }
+              : {
+                  quality: "auto",
+                  fetch_format: "auto",
+                  width: 1200,
+                  height: 800,
+                  crop: "limit",
+                },
           });
 
-          console.log('✅ تم رفع الملف إلى Cloudinary:', result.secure_url);
+          console.log("✅ تم رفع الملف إلى Cloudinary بنجاح");
 
-          uploadedFile = {
+          uploadResult = {
+            success: true,
             originalName: file.name,
-            fileName: result.public_id,
-            src: result.secure_url,
-            url: result.secure_url,
-            type: file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE',
-            size: result.bytes,
+            fileName: cloudinaryResult.public_id,
+            src: cloudinaryResult.secure_url,
+            url: cloudinaryResult.secure_url,
+            type: isVideo ? "VIDEO" : "IMAGE",
+            size: cloudinaryResult.bytes,
             mimeType: file.type,
-            width: result.width || null,
-            height: result.height || null,
-            duration: result.duration || null,
-            cloudinary_public_id: result.public_id,
-            cloudinary_url: result.secure_url,
-            resource_type: result.resource_type,
-            storage_type: 'cloudinary'
+            width: cloudinaryResult.width || null,
+            height: cloudinaryResult.height || null,
+            duration: cloudinaryResult.duration || null,
+            cloudinary_public_id: cloudinaryResult.public_id,
+            storage_type: "cloudinary",
+            // إضافة thumbnail للفيديو
+            ...(isVideo && {
+              thumbnail: `${cloudinaryResult.secure_url.replace("/upload/", "/upload/c_fill,h_200,w_300,so_0/")}.jpg`,
+            }),
           };
-
-          // التحقق من صحة النتيجة
-          if (!uploadedFile.src) {
-            throw new Error('لم يتم الحصول على رابط صحيح من Cloudinary');
-          }
-
         } else {
-          // رفع محلي (fallback)
-          console.log('💾 رفع محلي (fallback mode)...');
+          // رفع محلي
+          console.log("💾 رفع محلي...");
 
           const timestamp = Date.now();
           const randomString = Math.random().toString(36).substring(2, 15);
           const fileExtension = path.extname(file.name);
           const fileName = `${timestamp}_${randomString}${fileExtension}`;
-
           const filePath = path.join(uploadDir, fileName);
+
           const bytes = await file.arrayBuffer();
           const buffer = Buffer.from(bytes);
-
           await writeFile(filePath, buffer);
-          console.log('✅ تم حفظ الملف محلياً:', fileName);
 
-          uploadedFile = {
+          console.log("✅ تم حفظ الملف محلياً");
+
+          uploadResult = {
+            success: true,
             originalName: file.name,
             fileName: fileName,
             src: `/uploads/${fileName}`,
             url: `/uploads/${fileName}`,
-            type: file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE',
+            type: isVideo ? "VIDEO" : "IMAGE",
             size: file.size,
             mimeType: file.type,
-            storage_type: 'local'
+            storage_type: "local",
           };
         }
 
-        uploadedFiles.push(uploadedFile);
+        results.push(uploadResult);
+      } catch (fileError) {
+        console.error(`❌ خطأ في رفع الملف ${file.name}:`, fileError);
 
-      } catch (uploadError) {
-        console.error('❌ خطأ في رفع الملف:', uploadError);
-
-        uploadedFiles.push({
+        results.push({
+          success: false,
           originalName: file.name,
-          error: `فشل في رفع ${file.name}: ${uploadError instanceof Error ? uploadError.message : 'خطأ غير معروف'}`,
-          type: 'ERROR'
+          error:
+            fileError instanceof Error ? fileError.message : "خطأ غير معروف",
+          type: "ERROR",
         });
       }
     }
 
-    if (uploadedFiles.length === 0) {
-      return NextResponse.json(
-        { error: 'لم يتم رفع أي ملفات بنجاح' },
-        { status: 400 }
+    // تحليل النتائج
+    const successfulFiles = results.filter((r) => r.success);
+    const failedFiles = results.filter((r) => !r.success);
+
+    console.log(
+      `📊 نتائج الرفع: ${successfulFiles.length} نجح، ${failedFiles.length} فشل`,
+    );
+
+    if (successfulFiles.length === 0) {
+      return createJSONResponse(
+        {
+          success: false,
+          error: "فشل في رفع جميع الملفات",
+          details: failedFiles.map((f) => f.error),
+          failed_files: failedFiles,
+        },
+        400,
       );
     }
 
-    // فصل الملفات الناجحة عن الخاطئة
-    const successfulFiles = uploadedFiles.filter(file => file.type !== 'ERROR');
-    const failedFiles = uploadedFiles.filter(file => file.type === 'ERROR');
-
-    console.log('📊 نتيجة الرفع:', {
-      successful: successfulFiles.length,
-      failed: failedFiles.length,
-      total: uploadedFiles.length,
-      storageType: isCloudinaryAvailable ? 'cloudinary' : 'local'
-    });
-
-    return NextResponse.json({
+    const responseData = {
       success: true,
-      message: `تم رفع ${successfulFiles.length} ملف بنجاح${failedFiles.length > 0 ? ` و فشل ${failedFiles.length} ملف` : ''}`,
+      message: `تم رفع ${successfulFiles.length} ملف بنجاح${failedFiles.length > 0 ? `، وفشل ${failedFiles.length} ملف` : ""}`,
       files: successfulFiles,
-      errors: failedFiles.length > 0 ? failedFiles : undefined,
       count: successfulFiles.length,
-      storage_type: isCloudinaryAvailable ? 'cloudinary' : 'local'
-    });
+      storage_type: isCloudinaryAvailable ? "cloudinary" : "local",
+      ...(failedFiles.length > 0 && {
+        warnings: failedFiles.map((f) => `${f.originalName}: ${f.error}`),
+      }),
+    };
 
+    return createJSONResponse(responseData);
   } catch (error) {
-    console.error('❌ خطأ عام في رفع الملفات:', error);
-    return NextResponse.json(
-      {
-        error: 'حدث خطأ في رفع الملفات',
-        details: error instanceof Error ? error.message : 'خطأ غير معروف'
-      },
-      { status: 500 }
-    );
+    console.error("❌ خطأ عام في رفع الملفات:", error);
+
+    const errorResponse = {
+      success: false,
+      error: "حدث خطأ في نظام رفع الملفات",
+      details: error instanceof Error ? error.message : "خطأ غير معروف",
+    };
+
+    return createJSONResponse(errorResponse, 500);
   }
+}
+
+// دعم OPTIONS للـ CORS
+export async function OPTIONS() {
+  return createJSONResponse({ ok: true });
 }

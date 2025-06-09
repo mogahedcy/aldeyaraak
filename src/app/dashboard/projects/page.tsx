@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Search,
   Filter,
@@ -22,13 +28,13 @@ import {
   MapPin,
   DollarSign,
   AlertCircle,
-  CheckCircle
-} from 'lucide-react';
+  CheckCircle,
+} from "lucide-react";
 
 // Interface متطابق مع البيانات من API
 interface MediaItem {
   id: string;
-  type: 'IMAGE' | 'VIDEO';
+  type: "IMAGE" | "VIDEO";
   src: string;
   title?: string;
   description?: string;
@@ -51,8 +57,8 @@ interface Project {
   rating: number;
   createdAt: string;
   mediaItems: MediaItem[];
-  tags: { id: string; name: string; }[];
-  materials: { id: string; name: string; }[];
+  tags: { id: string; name: string }[];
+  materials: { id: string; name: string }[];
   _count: {
     comments: number;
     likes: number;
@@ -62,24 +68,24 @@ interface Project {
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const router = useRouter();
 
   // فئات المشاريع - متطابقة مع النظام الجديد
   const categories = [
-    { id: 'الكل', name: 'جميع الفئات' },
-    { id: 'مظلات', name: 'مظلات' },
-    { id: 'برجولات', name: 'برجولات' },
-    { id: 'سواتر', name: 'سواتر' },
-    { id: 'ساندوتش بانل', name: 'ساندوتش بانل' },
-    { id: 'تنسيق حدائق', name: 'تنسيق حدائق' },
-    { id: 'خيام ملكية', name: 'خيام ملكية' },
-    { id: 'بيوت شعر', name: 'بيوت شعر' },
-    { id: 'ترميم', name: 'ترميم' }
+    { id: "الكل", name: "جميع الفئات" },
+    { id: "مظلات", name: "مظلات" },
+    { id: "برجولات", name: "برجولات" },
+    { id: "سواتر", name: "سواتر" },
+    { id: "ساندوتش بانل", name: "ساندوتش بانل" },
+    { id: "تنسيق حدائق", name: "تنسيق حدائق" },
+    { id: "خيام ملكية", name: "خيام ملكية" },
+    { id: "بيوت شعر", name: "بيوت شعر" },
+    { id: "ترميم", name: "ترميم" },
   ];
 
   useEffect(() => {
@@ -92,16 +98,16 @@ export default function ProjectsPage() {
 
   const checkAuthentication = async () => {
     try {
-      const response = await fetch('/api/auth/verify');
+      const response = await fetch("/api/auth/verify");
       if (response.ok) {
         setIsAuthenticated(true);
         await loadProjects();
       } else {
-        router.push('/login');
+        router.push("/login");
       }
     } catch (error) {
-      console.error('Authentication error:', error);
-      router.push('/login');
+      console.error("Authentication error:", error);
+      router.push("/login");
     } finally {
       setIsLoading(false);
     }
@@ -109,8 +115,8 @@ export default function ProjectsPage() {
 
   const loadProjects = async () => {
     try {
-      setError('');
-      const response = await fetch('/api/projects');
+      setError("");
+      const response = await fetch("/api/projects");
       const data = await response.json();
 
       if (data.projects) {
@@ -118,11 +124,11 @@ export default function ProjectsPage() {
       } else if (Array.isArray(data)) {
         setProjects(data);
       } else {
-        setError('تنسيق البيانات غير صحيح');
+        setError("تنسيق البيانات غير صحيح");
       }
     } catch (error) {
-      console.error('Error loading projects:', error);
-      setError('فشل في تحميل المشاريع');
+      console.error("Error loading projects:", error);
+      setError("فشل في تحميل المشاريع");
     }
   };
 
@@ -130,85 +136,134 @@ export default function ProjectsPage() {
     let filtered = projects;
 
     if (searchTerm) {
-      filtered = filtered.filter(project =>
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.tags?.some(tag => tag.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      filtered = filtered.filter(
+        (project) =>
+          project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          project.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          project.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          project.tags?.some((tag) =>
+            tag.name.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
 
     if (selectedCategory) {
-      filtered = filtered.filter(project => project.category === selectedCategory);
+      filtered = filtered.filter(
+        (project) => project.category === selectedCategory,
+      );
     }
 
     setFilteredProjects(filtered);
   };
 
   const handleDeleteProject = async (projectId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المشروع؟')) return;
+    if (
+      !confirm(
+        "هل أنت متأكد من حذف هذا المشروع؟ سيتم حذف جميع البيانات المرتبطة به نهائياً.",
+      )
+    )
+      return;
 
     try {
+      console.log("🗑️ بدء حذف المشروع:", projectId);
+
       const response = await fetch(`/api/projects/${projectId}`, {
-        method: 'DELETE',
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
+      const responseText = await response.text();
+      console.log("📡 استجابة حذف المشروع:", response.status, responseText);
+
       if (response.ok) {
-        setProjects(prev => prev.filter(p => p.id !== projectId));
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          console.warn("تحذير: لا يمكن تحليل استجابة JSON، لكن العملية نجحت");
+          data = { success: true };
+        }
+
+        if (data.success) {
+          console.log("✅ تم حذف المشروع من قاعدة البيانات");
+          setProjects((prev) => prev.filter((p) => p.id !== projectId));
+          alert("تم حذف المشروع بنجاح");
+
+          // إعادة تحميل المشاريع للتأكد من التطابق مع قاعدة البيانات
+          await loadProjects();
+        } else {
+          throw new Error(data.error || "فشل في حذف المشروع");
+        }
       } else {
-        alert('فشل في حذف المشروع');
+        let errorMessage = "فشل في حذف المشروع";
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.error || errorData.details || errorMessage;
+        } catch (parseError) {
+          console.error("خطأ في تحليل استجابة الخطأ:", parseError);
+          errorMessage = `خطأ في السيرفر (${response.status})`;
+        }
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error('Error deleting project:', error);
-      alert('حدث خطأ في حذف المشروع');
+      console.error("❌ خطأ في حذف المشروع:", error);
+      alert(
+        `حدث خطأ في حذف المشروع: ${error instanceof Error ? error.message : "خطأ غير معروف"}`,
+      );
     }
   };
 
   const getCategoryName = (categoryId: string) => {
     const categoryMap: { [key: string]: string } = {
-      'مظلات': 'مظلات',
-      'برجولات': 'برجولات',
-      'سواتر': 'سواتر',
-      'ساندوتش بانل': 'ساندوتش بانل',
-      'تنسيق حدائق': 'تنسيق حدائق',
-      'خيام ملكية': 'خيام ملكية',
-      'بيوت شعر': 'بيوت شعر',
-      'ترميم': 'ترميم',
+      مظلات: "مظلات",
+      برجولات: "برجولات",
+      سواتر: "سواتر",
+      "ساندوتش بانل": "ساندوتش بانل",
+      "تنسيق حدائق": "تنسيق حدائق",
+      "خيام ملكية": "خيام ملكية",
+      "بيوت شعر": "بيوت شعر",
+      ترميم: "ترميم",
       // إضافة أسماء بديلة للتوافق مع الأنظمة القديمة
-      'mazallat': 'مظلات',
-      'sawater': 'سواتر',
-      'sandwich-panel': 'ساندوتش بانل',
-      'landscaping': 'تنسيق حدائق',
-      'khayyam': 'خيام ملكية',
-      'byoot-shaar': 'بيوت شعر',
-      'renovation': 'ترميم',
-      'pergolas': 'برجولات',
-      'المظلات': 'مظلات',
-      'السواتر': 'سواتر',
-      'الساندوتش بانل': 'ساندوتش بانل',
-      'تنسيق الحدائق': 'تنسيق حدائق',
-      'الخيام': 'خيام ملكية',
-      'الترميم': 'ترميم',
-      'البرجولات': 'برجولات'
+      mazallat: "مظلات",
+      sawater: "سواتر",
+      "sandwich-panel": "ساندوتش بانل",
+      landscaping: "تنسيق حدائق",
+      khayyam: "خيام ملكية",
+      "byoot-shaar": "بيوت شعر",
+      renovation: "ترميم",
+      pergolas: "برجولات",
+      المظلات: "مظلات",
+      السواتر: "سواتر",
+      "الساندوتش بانل": "ساندوتش بانل",
+      "تنسيق الحدائق": "تنسيق حدائق",
+      الخيام: "خيام ملكية",
+      الترميم: "ترميم",
+      البرجولات: "برجولات",
     };
 
     return categoryMap[categoryId] || categoryId;
   };
 
   const ProjectCard = ({ project }: { project: Project }) => {
-    const mainImage = project.mediaItems?.find(item => item.type === 'IMAGE');
-    const mainVideo = project.mediaItems?.find(item => item.type === 'VIDEO');
+    const mainImage = project.mediaItems?.find((item) => item.type === "IMAGE");
+    const mainVideo = project.mediaItems?.find((item) => item.type === "VIDEO");
     const mainMedia = mainImage || mainVideo; // أول وسيط متاح (صورة أو فيديو)
     const totalMedia = project.mediaItems?.length || 0;
-    const imageCount = project.mediaItems?.filter(item => item.type === 'IMAGE').length || 0;
-    const videoCount = project.mediaItems?.filter(item => item.type === 'VIDEO').length || 0;
+    const imageCount =
+      project.mediaItems?.filter((item) => item.type === "IMAGE").length || 0;
+    const videoCount =
+      project.mediaItems?.filter((item) => item.type === "VIDEO").length || 0;
 
     // إضافة تشخيص للصور والفيديوهات
-    console.log('Project:', project.title);
-    console.log('Media Items:', project.mediaItems);
-    console.log('Main Image:', mainImage);
-    console.log('Main Video:', mainVideo);
-    console.log('Main Media:', mainMedia);
+    console.log("Project:", project.title);
+    console.log("Media Items:", project.mediaItems);
+    console.log("Main Image:", mainImage);
+    console.log("Main Video:", mainVideo);
+    console.log("Main Media:", mainMedia);
 
     return (
       <Card className="group hover:shadow-lg transition-shadow duration-200">
@@ -235,16 +290,19 @@ export default function ProjectsPage() {
           {/* معاينة الوسائط (صورة أو فيديو) */}
           {mainMedia ? (
             <div className="relative h-40 bg-gray-100 rounded-lg overflow-hidden">
-              {mainMedia.type === 'IMAGE' ? (
+              {mainMedia.type === "IMAGE" ? (
                 <img
                   src={mainMedia.src}
                   alt={project.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    console.error('خطأ في تحميل الصورة:', mainMedia.src);
-                    (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                    console.error("خطأ في تحميل الصورة:", mainMedia.src);
+                    (e.target as HTMLImageElement).src =
+                      "/placeholder-image.jpg";
                   }}
-                  onLoad={() => console.log('تم تحميل الصورة بنجاح:', mainMedia.src)}
+                  onLoad={() =>
+                    console.log("تم تحميل الصورة بنجاح:", mainMedia.src)
+                  }
                 />
               ) : (
                 // عرض الفيديو
@@ -261,9 +319,11 @@ export default function ProjectsPage() {
                       video.currentTime = 0;
                     }}
                     onError={(e) => {
-                      console.error('خطأ في تحميل الفيديو:', mainMedia.src);
+                      console.error("خطأ في تحميل الفيديو:", mainMedia.src);
                     }}
-                    onLoadedData={() => console.log('تم تحميل الفيديو بنجاح:', mainMedia.src)}
+                    onLoadedData={() =>
+                      console.log("تم تحميل الفيديو بنجاح:", mainMedia.src)
+                    }
                   />
                   {/* طبقة علوية مع أيقونة الفيديو */}
                   <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center pointer-events-none">
@@ -284,10 +344,10 @@ export default function ProjectsPage() {
               {/* شارة نوع الملف */}
               <div className="absolute top-2 left-2">
                 <Badge
-                  variant={mainMedia.type === 'IMAGE' ? 'secondary' : 'default'}
+                  variant={mainMedia.type === "IMAGE" ? "secondary" : "default"}
                   className="text-xs"
                 >
-                  {mainMedia.type === 'IMAGE' ? 'صورة' : 'فيديو'}
+                  {mainMedia.type === "IMAGE" ? "صورة" : "فيديو"}
                 </Badge>
               </div>
             </div>
@@ -298,7 +358,8 @@ export default function ProjectsPage() {
                 <p className="text-sm">لا توجد وسائط</p>
                 {project.mediaItems && project.mediaItems.length > 0 && (
                   <p className="text-xs mt-1">
-                    الملفات المتاحة: {project.mediaItems.map(m => m.type).join(', ')}
+                    الملفات المتاحة:{" "}
+                    {project.mediaItems.map((m) => m.type).join(", ")}
                   </p>
                 )}
               </div>
@@ -308,7 +369,9 @@ export default function ProjectsPage() {
           {/* تفاصيل المشروع */}
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2 text-gray-600">
-              <Badge variant="outline">{getCategoryName(project.category)}</Badge>
+              <Badge variant="outline">
+                {getCategoryName(project.category)}
+              </Badge>
             </div>
 
             <div className="flex items-center gap-2 text-gray-600">
@@ -318,7 +381,9 @@ export default function ProjectsPage() {
 
             <div className="flex items-center gap-2 text-gray-600">
               <Calendar className="h-4 w-4" />
-              <span>{new Date(project.completionDate).toLocaleDateString('ar-SA')}</span>
+              <span>
+                {new Date(project.completionDate).toLocaleDateString("ar-SA")}
+              </span>
             </div>
 
             {project.projectCost && (
@@ -349,7 +414,9 @@ export default function ProjectsPage() {
                 </span>
               )}
             </div>
-            <span>{new Date(project.createdAt).toLocaleDateString('ar-SA')}</span>
+            <span>
+              {new Date(project.createdAt).toLocaleDateString("ar-SA")}
+            </span>
           </div>
 
           {/* أزرار الإجراءات */}
@@ -366,7 +433,9 @@ export default function ProjectsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push(`/dashboard/projects/${project.id}/edit`)}
+              onClick={() =>
+                router.push(`/dashboard/projects/${project.id}/edit`)
+              }
               className="flex-1"
             >
               <Edit className="h-4 w-4 mr-1" />
@@ -410,7 +479,7 @@ export default function ProjectsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => router.push('/dashboard')}
+                onClick={() => router.push("/dashboard")}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -421,7 +490,7 @@ export default function ProjectsPage() {
               </h1>
             </div>
             <Button
-              onClick={() => router.push('/dashboard/projects/add')}
+              onClick={() => router.push("/dashboard/projects/add")}
               className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
@@ -467,7 +536,7 @@ export default function ProjectsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="">جميع الفئات</option>
-                  {categories.map(category => (
+                  {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
@@ -478,18 +547,20 @@ export default function ProjectsPage() {
           </CardContent>
         </Card>
 
-        {/* إحصائيات سريعة */}
+        {/* إحصائيات سريع�� */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-green-600">{projects.length}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {projects.length}
+              </div>
               <p className="text-sm text-gray-600">إجمالي المشاريع</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-blue-600">
-                {projects.filter(p => p.featured).length}
+                {projects.filter((p) => p.featured).length}
               </div>
               <p className="text-sm text-gray-600">المشاريع المميزة</p>
             </CardContent>
@@ -497,7 +568,10 @@ export default function ProjectsPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-purple-600">
-                {projects.reduce((sum, p) => sum + (p.mediaItems?.length || 0), 0)}
+                {projects.reduce(
+                  (sum, p) => sum + (p.mediaItems?.length || 0),
+                  0,
+                )}
               </div>
               <p className="text-sm text-gray-600">إجمالي الملفات</p>
             </CardContent>
@@ -521,11 +595,13 @@ export default function ProjectsPage() {
                   <Search className="h-12 w-12 mx-auto" />
                 </div>
                 <p className="text-gray-600 mb-4">
-                  {projects.length === 0 ? 'لا توجد مشاريع بعد' : 'لا توجد نتائج للبحث'}
+                  {projects.length === 0
+                    ? "لا توجد مشاريع بعد"
+                    : "لا توجد نتائج للبحث"}
                 </p>
                 {projects.length === 0 && (
                   <Button
-                    onClick={() => router.push('/dashboard/projects/add')}
+                    onClick={() => router.push("/dashboard/projects/add")}
                     className="flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />

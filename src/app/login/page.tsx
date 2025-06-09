@@ -1,12 +1,135 @@
-import type { Metadata } from 'next';
-import LoginForm from '@/components/LoginForm';
+"use client";
 
-export const metadata: Metadata = {
-  title: 'تسجيل الدخول | محترفين الديار العالمية',
-  description: 'تسجيل دخول لوحة التحكم',
-  robots: 'noindex, nofollow',
-};
+import { useState } from "react";
 
 export default function LoginPage() {
-  return <LoginForm />;
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    // تحقق بسيط
+    if (username === "admin" && password === "admin123") {
+      // تسجيل دخول ناجح
+      console.log("✅ تم تسجيل الدخول بنجاح");
+
+      // إعداد الكوكيز للمصادقة - متعددة لضمان التوافق
+      const expireTime = 24 * 60 * 60; // 24 ساعة بالثواني
+      const adminId = `admin_${Date.now()}`;
+      const adminToken = `token_${Date.now()}_${Math.random().toString(36)}`;
+
+      document.cookie = `logged-in=yes; path=/; max-age=${expireTime}`;
+      document.cookie = `admin-id=${adminId}; path=/; max-age=${expireTime}`;
+      document.cookie = `admin-token=${adminToken}; path=/; max-age=${expireTime}`;
+      document.cookie = `auth-token=${adminToken}; path=/; max-age=${expireTime}`;
+
+      console.log("🍪 تم إعداد الكوكيز للمصادقة");
+
+      // انتقال للوحة التحكم
+      window.location.href = "/dashboard";
+      return;
+    } else {
+      setError("اسم المستخدم أو كلمة المرور خاطئة");
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f0f0f0",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "white",
+          padding: "40px",
+          borderRadius: "10px",
+          width: "400px",
+          textAlign: "center",
+        }}
+      >
+        <h1 style={{ marginBottom: "30px" }}>تسجيل الدخول</h1>
+
+        <form onSubmit={handleLogin}>
+          <input
+            type="text"
+            placeholder="اسم المستخدم (admin)"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px",
+              margin: "10px 0",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+            }}
+          />
+
+          <input
+            type="password"
+            placeholder="كلمة المرور (admin123)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px",
+              margin: "10px 0",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+            }}
+          />
+
+          {error && (
+            <div style={{ color: "red", margin: "10px 0" }}>{error}</div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              marginTop: "10px",
+            }}
+          >
+            {loading ? "جاري التحقق..." : "دخول"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => (window.location.href = "/dashboard")}
+            style={{
+              width: "100%",
+              padding: "10px",
+              backgroundColor: "#28a745",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              marginTop: "10px",
+              fontSize: "14px",
+            }}
+          >
+            🚀 الدخول المباشر للوحة التحكم
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }

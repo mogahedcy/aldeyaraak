@@ -1,17 +1,27 @@
-
 {
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install",
+  "installCommand": "npm install --frozen-lockfile",
   "devCommand": "npm run dev",
-  "regions": ["sin1"],
+  "regions": ["sin1", "iad1"],
+
   "functions": {
     "src/app/api/**/*.ts": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "src/app/api/upload/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "src/app/api/projects/route.ts": {
+      "maxDuration": 30,
+      "memory": 512
     }
   },
+
   "headers": [
     {
       "source": "/(.*)",
@@ -31,6 +41,35 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://aldeyarksa.tech"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
         }
       ]
     },
@@ -40,33 +79,118 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Vary",
+          "value": "Accept"
         }
       ]
     },
     {
-      "source": "/:all*(ico|png|jpg|jpeg|svg|webp|gif)",
+      "source": "/:all*(ico|png|jpg|jpeg|svg|webp|gif|woff|woff2|ttf|otf)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
         }
       ]
+    },
+    {
+      "source": "/(about|privacy|terms|faq|contact)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=86400"
+        }
+      ]
+    },
+    {
+      "source": "/portfolio/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=1800, s-maxage=3600"
+        }
+      ]
     }
   ],
+
   "redirects": [
     {
       "source": "/home",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/services",
+      "destination": "/#services",
+      "permanent": true
+    },
+    {
+      "source": "/خدماتنا",
+      "destination": "/#services",
+      "permanent": true
+    },
+    {
+      "source": "/معرض-الاعمال",
+      "destination": "/portfolio",
+      "permanent": true
+    },
+    {
+      "source": "/تواصل-معنا",
+      "destination": "/contact",
+      "permanent": true
     }
   ],
+
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "source": "/api/health",
+      "destination": "/api/health-check"
+    },
+    {
+      "source": "/sitemap",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/robots",
+      "destination": "/robots.txt"
     }
   ],
+
   "env": {
-    "NEXT_PUBLIC_SITE_URL": "https://aldeyaraak.vercel.app"
-  }
+    "NEXT_PUBLIC_SITE_URL": "https://aldeyarksa.tech",
+    "NEXT_PUBLIC_OPTIMIZE_IMAGES": "true",
+    "NEXT_PUBLIC_LAZY_LOADING": "true"
+  },
+
+  "crons": [
+    {
+      "path": "/api/sitemap/refresh",
+      "schedule": "0 2 * * *"
+    }
+  ],
+
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next",
+      "config": {
+        "experimental": {
+          "optimizeCss": true,
+          "optimizeServerReact": true
+        }
+      }
+    }
+  ],
+
+  "routes": [
+    {
+      "src": "/sw.js",
+      "headers": {
+        "cache-control": "public, max-age=43200, immutable",
+        "service-worker-allowed": "/"
+      }
+    }
+  ]
 }

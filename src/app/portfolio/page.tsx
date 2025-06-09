@@ -1,23 +1,26 @@
-import type { Metadata } from 'next';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import PortfolioPageClient from './PortfolioPageClient';
+import type { Metadata } from "next";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import PortfolioPageClientSimple from "./PortfolioPageClient-simple";
 
 export const metadata: Metadata = {
-  title: 'معرض الأعمال - محترفين الديار العالمية',
-  description: 'استعرض مجموعة شاملة من مشاريعنا المميزة في مجال تنسيق الحدائق والمظلات والبرجولات وأعمال الترميم في جدة والمنطقة الغربية',
-  keywords: 'معرض الأعمال, مشاريع محترفين الديار العالمية, تنسيق حدائق, مظلات, برجولات, ترميم, جدة',
+  title: "معرض الأعمال - محترفين الديار العالمية",
+  description:
+    "استعرض مجموعة شاملة من مشاريعنا المميزة في مجال تنسيق الحدائق والمظلات والبرجولات وأعمال الترميم في جدة والمنطقة الغربية",
+  keywords:
+    "معرض الأعمال, مشاريع محترفين الديار العالمية, تنسيق حدائق, مظلات, برجولات, ترميم, جدة",
   openGraph: {
-    title: 'معرض الأعمال - محترفين الديار العالمية',
-    description: 'استعرض مجموعة شاملة من مشاريعنا المميزة في مجال تنسيق الحدائق والمظلات والبرجولات',
-    images: ['/images/portfolio-hero.jpg'],
-    type: 'website',
+    title: "معرض الأعمال - محترفين الديار العالمية",
+    description:
+      "استعرض مجموعة شاملة من مشاريعنا المميزة في مجال تنسيق الحدائق والمظلات والبرجولات",
+    images: ["/images/portfolio-hero.jpg"],
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'معرض الأعمال - محترفين الديار العالمية',
-    description: 'استعرض مجموعة شاملة من مشاريعنا المميزة',
-    images: ['/images/portfolio-hero.jpg'],
+    card: "summary_large_image",
+    title: "معرض الأعمال - محترفين الديار العالمية",
+    description: "استعرض مجموعة شاملة من مشاريعنا المميزة",
+    images: ["/images/portfolio-hero.jpg"],
   },
 };
 
@@ -29,7 +32,7 @@ export default function PortfolioPage() {
 
       {/* محتوى الصفحة */}
       <main className="flex-1">
-        <PortfolioPageClient />
+        <PortfolioPageClientSimple />
       </main>
 
       {/* الفوتر */}
