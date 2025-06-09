@@ -1,12 +1,8 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
   experimental: {
     outputFileTracingRoot: undefined,
-  },
-  serverExternalPackages: ['@prisma/client'],
-  experimental: {
     serverComponentsExternalPackages: ['@prisma/client']
   },
   images: {
