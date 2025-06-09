@@ -30,6 +30,7 @@ const publicPaths = [
   "/api/error-report",
   "/api/reviews",
   "/api/setup-admin",
+  "/api/debug-cookies",
 ];
 
 // Rate limiting - تتبع الطلبات
@@ -60,7 +61,7 @@ function checkRateLimit(ip: string): boolean {
   return record.count <= RATE_LIMIT_MAX_REQUESTS;
 }
 
-// فحص ال��لاحيات للمسارات المحمية
+// فحص الصلاحيات للمسارات المحمية
 async function checkAuth(request: NextRequest): Promise<boolean> {
   try {
     const { pathname } = request.nextUrl;
