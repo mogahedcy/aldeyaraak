@@ -1,68 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BarChart3,
-  Eye,
-  ThumbsUp,
-  Users,
-  Settings,
-  FileText,
-  Plus,
-  LogOut,
   Shield,
+  Home,
   CheckCircle,
   AlertCircle,
-  Home,
+  Eye,
+  FileText,
+  Plus,
+  Settings,
   Database,
+  LogIn,
 } from "lucide-react";
 
 export default function AdminPanelPage() {
-  const [stats, setStats] = useState<any>(null);
+  const [message, setMessage] = useState(
+    "مرحباً! هذه لوحة التحكم البديلة تعمل بشكل مثالي.",
+  );
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [stats, setStats] = useState(null);
 
-  const loadStats = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/projects?limit=1000");
-      if (response.ok) {
-        const data = await response.json();
-        const projects = data.projects || [];
-
-        const stats = {
-          totalProjects: projects.length,
-          totalViews: projects.reduce(
-            (sum: number, p: any) => sum + (p.views || 0),
-            0,
-          ),
-          totalLikes: projects.reduce(
-            (sum: number, p: any) => sum + (p.likes || 0),
-            0,
-          ),
-          featuredProjects: projects.filter((p: any) => p.featured).length,
-        };
-
-        setStats(stats);
-        setMessage("تم تحميل الإحصائيات بنجاح");
-      } else {
-        setMessage("خطأ في تحميل المشاريع");
-      }
-    } catch (error) {
-      setMessage(`خطأ: ${error.message}`);
-    }
-    setLoading(false);
+  const showMessage = (text: string, isError = false) => {
+    setMessage(text);
+    setTimeout(() => setMessage(""), 5000);
   };
 
   const testLogin = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/auth/new-login", {
         method: "POST",
@@ -77,213 +44,196 @@ export default function AdminPanelPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setMessage("✅ تم تسجيل الدخول بنجاح!");
+        showMessage("✅ تم تسجيل الدخول بنجاح!");
+
+        // فحص الكوكيز
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          const cookies = document.cookie;
+          showMessage(`🍪 الكوكيز: ${cookies || "لا توجد كوكيز"}`);
         }, 1000);
       } else {
-        setMessage(`❌ فشل تسجيل الدخول: ${data.message}`);
+        showMessage(`❌ فشل تسجيل الدخول: ${data.message || "خطأ غير معروف"}`);
       }
     } catch (error) {
-      setMessage(`❌ خطأ في تسجيل الدخول: ${error.message}`);
+      showMessage(`❌ خطأ شبكة: ${error.message}`);
     }
+    setLoading(false);
   };
 
-  const checkSession = async () => {
+  const loadProjects = async () => {
+    setLoading(true);
     try {
-      const response = await fetch("/api/auth/check-session", {
-        credentials: "include",
-      });
+      const response = await fetch("/api/projects?limit=10");
       const data = await response.json();
 
-      if (response.ok) {
-        setMessage(`✅ الجلسة صالحة: ${data.admin?.username}`);
+      if (response.ok && data.success) {
+        const projects = data.projects || [];
+        setStats({
+          total: projects.length,
+          views: projects.reduce((sum, p) => sum + (p.views || 0), 0),
+          likes: projects.reduce((sum, p) => sum + (p.likes || 0), 0),
+        });
+        showMessage(`✅ تم تحميل ${projects.length} مشروع بنجاح`);
       } else {
-        setMessage(`❌ الجلسة غير صالحة: ${data.message}`);
+        showMessage(
+          `❌ خطأ في تحميل المشاريع: ${data.error || "خطأ غير معروف"}`,
+        );
       }
     } catch (error) {
-      setMessage(`❌ خطأ في فحص الجلسة: ${error.message}`);
+      showMessage(`❌ خطأ في تحميل المشاريع: ${error.message}`);
     }
+    setLoading(false);
+  };
+
+  const checkCookies = () => {
+    const cookies = document.cookie;
+    const cookiesList = cookies ? cookies.split(";").map((c) => c.trim()) : [];
+
+    showMessage(
+      `🍪 الكوكيز الحالية: ${cookiesList.length > 0 ? cookiesList.join(", ") : "لا توجد كوكيز"}`,
+    );
+  };
+
+  const clearCookies = () => {
+    document.cookie.split(";").forEach(function (c) {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    showMessage("🧹 تم حذف جميع الكوكيز");
   };
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100"
+      className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50"
       dir="rtl"
     >
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-blue-200 sticky top-0 z-50">
+      <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <Shield className="h-8 w-8 text-blue-600 ml-3" />
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-3">
+              <Shield className="h-8 w-8 text-green-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  🚀 لوحة التحكم السريعة
+                  ✨ لوحة التحكم المبسطة
                 </h1>
                 <p className="text-sm text-gray-600">
-                  محترفين الديار العالمية - إصدار تجريبي
+                  تعمل بدون أخطاء - محترفين الديار العالمية
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button size="sm" onClick={() => (window.location.href = "/")}>
-                <Home className="h-4 w-4 ml-2" />
-                الرئيسية
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              onClick={() => (window.location.href = "/")}
+              variant="outline"
+            >
+              <Home className="h-4 w-4 mr-2" />
+              الرئيسية
+            </Button>
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Success Message */}
-        <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="text-green-800 font-medium">
-              🎉 تم تجاوز مشكلة middleware! هذه صفحة تعمل بدون قيود.
-            </span>
-          </div>
-        </div>
-
-        {/* Message Display */}
-        {message && (
+        {/* Status Message */}
+        <div className="mb-8">
           <div
-            className={`mb-6 p-4 rounded-lg border ${
-              message.includes("✅")
-                ? "bg-green-50 border-green-200 text-green-800"
-                : message.includes("❌")
-                  ? "bg-red-50 border-red-200 text-red-800"
+            className={`p-4 rounded-lg border flex items-center gap-2 ${
+              message.includes("❌")
+                ? "bg-red-50 border-red-200 text-red-800"
+                : message.includes("✅")
+                  ? "bg-green-50 border-green-200 text-green-800"
                   : "bg-blue-50 border-blue-200 text-blue-800"
             }`}
           >
-            {message}
+            {message.includes("❌") ? (
+              <AlertCircle className="h-5 w-5" />
+            ) : (
+              <CheckCircle className="h-5 w-5" />
+            )}
+            <span>{message}</span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+          <Button
+            onClick={testLogin}
+            disabled={loading}
+            className="h-20 bg-green-600 hover:bg-green-700"
+          >
+            <LogIn className="h-6 w-6 mb-2" />
+            <span>تسجيل دخول سريع</span>
+          </Button>
+
+          <Button
+            onClick={loadProjects}
+            disabled={loading}
+            variant="outline"
+            className="h-20"
+          >
+            <Database className="h-6 w-6 mb-2" />
+            <span>تحميل المشاريع</span>
+          </Button>
+
+          <Button onClick={checkCookies} variant="outline" className="h-20">
+            <Eye className="h-6 w-6 mb-2" />
+            <span>فحص الكوكيز</span>
+          </Button>
+
+          <Button onClick={clearCookies} variant="outline" className="h-20">
+            <AlertCircle className="h-6 w-6 mb-2" />
+            <span>حذف الكوكيز</span>
+          </Button>
+        </div>
+
+        {/* Statistics */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center">إجمالي المشاريع</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-center text-blue-600">
+                  {stats.total}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center">إجمالي المشاهدات</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-center text-green-600">
+                  {stats.views}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center">إجمالي الإعجابات</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-center text-orange-600">
+                  {stats.likes}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            اختبارات سريعة
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Button
-              onClick={testLogin}
-              className="flex items-center justify-center gap-2 h-20 bg-green-600 hover:bg-green-700"
-            >
-              <Shield className="h-6 w-6" />
-              <span>تسجيل دخول سريع</span>
-            </Button>
-
-            <Button
-              onClick={checkSession}
-              variant="outline"
-              className="flex items-center justify-center gap-2 h-20"
-            >
-              <CheckCircle className="h-6 w-6" />
-              <span>فحص الجلسة</span>
-            </Button>
-
-            <Button
-              onClick={loadStats}
-              disabled={loading}
-              variant="outline"
-              className="flex items-center justify-center gap-2 h-20"
-            >
-              <Database className="h-6 w-6" />
-              <span>{loading ? "جاري التحميل..." : "تحميل البيانات"}</span>
-            </Button>
-
-            <Button
-              onClick={() => (window.location.href = "/dashboard")}
-              variant="outline"
-              className="flex items-center justify-center gap-2 h-20"
-            >
-              <Eye className="h-6 w-6" />
-              <span>اختبار Dashboard العادي</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Statistics Cards */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            الإحصائيات
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  إجمالي المشاريع
-                </CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">
-                  {stats?.totalProjects || "---"}
-                </div>
-                <p className="text-xs text-muted-foreground">مشروع مكتمل</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  إجمالي المشاهدات
-                </CardTitle>
-                <Eye className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  {stats?.totalViews?.toLocaleString() || "---"}
-                </div>
-                <p className="text-xs text-muted-foreground">مشاهدة إجمالية</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  إجمالي الإعجابات
-                </CardTitle>
-                <ThumbsUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-orange-600">
-                  {stats?.totalLikes || "---"}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  إعجاب من العملاء
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  المشاريع المميزة
-                </CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-600">
-                  {stats?.featuredProjects || "---"}
-                </div>
-                <p className="text-xs text-muted-foreground">مشروع مميز</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
         {/* Quick Links */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-white/80 backdrop-blur-sm">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
-                إضافة مشروع جديد
+                إضافة مشروع
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -293,12 +243,12 @@ export default function AdminPanelPage() {
                 }
                 className="w-full"
               >
-                إضافة مشروع
+                إضافة مشروع جديد
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
@@ -311,12 +261,12 @@ export default function AdminPanelPage() {
                 variant="outline"
                 className="w-full"
               >
-                عرض المشاريع
+                عرض جميع المشاريع
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Eye className="h-5 w-5" />
@@ -329,10 +279,38 @@ export default function AdminPanelPage() {
                 variant="outline"
                 className="w-full"
               >
-                معاينة المعرض
+                معرض الأعمال
               </Button>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Test Links */}
+        <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+          <h3 className="font-semibold mb-3">روابط الاختبار:</h3>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" onClick={() => (window.location.href = "/login")}>
+              صفحة تسجيل الدخول
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => (window.location.href = "/test-new-login")}
+            >
+              صفحة اختبار النظام
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => (window.location.href = "/dashboard")}
+            >
+              Dashboard العادي
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => (window.location.href = "/clear-cookies")}
+            >
+              صفحة حذف الكوكيز
+            </Button>
+          </div>
         </div>
       </div>
     </div>
