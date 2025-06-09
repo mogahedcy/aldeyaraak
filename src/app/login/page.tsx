@@ -1,26 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess("");
 
     try {
-      const response = await fetch("/api/simple-login", {
+      const response = await fetch("/api/check-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,14 +27,10 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (data.success) {
-        setSuccess("تم تسجيل الدخول بنجاح! جاري التوجيه...");
-
-        // توجيه فوري إلى dashboard
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 1000);
+        // توجيه فوري للوحة التحكم بدون حفظ أي بيانات
+        window.location.href = "/dashboard";
       } else {
-        setError(data.message || "خطأ في تسجيل الدخول");
+        setError(data.message || "اسم المستخدم أو كلمة المرور غير صحيحة");
       }
     } catch (error) {
       setError("خطأ في الاتصال بالخادم");
@@ -56,7 +48,7 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -67,88 +59,91 @@ export default function LoginPage() {
       <div
         style={{
           backgroundColor: "white",
-          borderRadius: "15px",
-          padding: "40px",
+          borderRadius: "20px",
+          padding: "50px",
           width: "100%",
-          maxWidth: "400px",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+          maxWidth: "450px",
+          boxShadow: "0 25px 50px rgba(0,0,0,0.2)",
           textAlign: "center" as const,
         }}
       >
         {/* Header */}
-        <div style={{ marginBottom: "30px" }}>
+        <div style={{ marginBottom: "40px" }}>
           <div
             style={{
-              width: "80px",
-              height: "80px",
-              backgroundColor: "#667eea",
+              width: "100px",
+              height: "100px",
+              backgroundColor: "#1e3a8a",
               borderRadius: "50%",
-              margin: "0 auto 20px",
+              margin: "0 auto 25px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "2rem",
+              fontSize: "2.5rem",
+              boxShadow: "0 10px 30px rgba(30,58,138,0.3)",
             }}
           >
-            🔐
+            🏢
           </div>
           <h1
             style={{
-              fontSize: "2rem",
-              color: "#333",
-              margin: "0 0 10px 0",
+              fontSize: "2.5rem",
+              color: "#1f2937",
+              margin: "0 0 15px 0",
+              fontWeight: "bold",
             }}
           >
             تسجيل الدخول
           </h1>
-          <p style={{ color: "#666", margin: 0 }}>
+          <p
+            style={{
+              color: "#6b7280",
+              margin: 0,
+              fontSize: "1.1rem",
+            }}
+          >
             لوحة تحكم محترفين الديار العالمية
+          </p>
+          <p
+            style={{
+              color: "#9ca3af",
+              margin: "10px 0 0 0",
+              fontSize: "0.9rem",
+            }}
+          >
+            يرجى إدخال بياناتك في كل مرة
           </p>
         </div>
 
-        {/* Messages */}
+        {/* Error Message */}
         {error && (
           <div
             style={{
-              backgroundColor: "#fee2e2",
-              border: "1px solid #fca5a5",
+              backgroundColor: "#fef2f2",
+              border: "2px solid #fca5a5",
               color: "#dc2626",
-              padding: "12px",
-              borderRadius: "8px",
-              marginBottom: "20px",
+              padding: "15px",
+              borderRadius: "10px",
+              marginBottom: "25px",
               fontSize: "14px",
+              fontWeight: "bold",
             }}
           >
             ❌ {error}
           </div>
         )}
 
-        {success && (
-          <div
-            style={{
-              backgroundColor: "#d1fae5",
-              border: "1px solid #6ee7b7",
-              color: "#059669",
-              padding: "12px",
-              borderRadius: "8px",
-              marginBottom: "20px",
-              fontSize: "14px",
-            }}
-          >
-            ✅ {success}
-          </div>
-        )}
-
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ textAlign: "right" as const }}>
           {/* Username */}
-          <div style={{ marginBottom: "20px" }}>
+          <div style={{ marginBottom: "25px" }}>
             <label
               style={{
                 display: "block",
-                marginBottom: "8px",
-                color: "#333",
+                marginBottom: "10px",
+                color: "#374151",
                 fontWeight: "bold",
+                fontSize: "16px",
               }}
             >
               اسم المستخدم
@@ -162,28 +157,35 @@ export default function LoginPage() {
               required
               style={{
                 width: "100%",
-                padding: "12px 15px",
+                padding: "15px 20px",
                 border: "2px solid #e5e7eb",
-                borderRadius: "8px",
+                borderRadius: "10px",
                 fontSize: "16px",
                 outline: "none",
-                transition: "border-color 0.3s",
+                transition: "all 0.3s",
                 boxSizing: "border-box" as const,
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#1e3a8a";
+                e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#e5e7eb";
+                e.target.style.boxShadow = "none";
+              }}
               placeholder="أدخل اسم المستخدم"
             />
           </div>
 
           {/* Password */}
-          <div style={{ marginBottom: "20px" }}>
+          <div style={{ marginBottom: "30px" }}>
             <label
               style={{
                 display: "block",
-                marginBottom: "8px",
-                color: "#333",
+                marginBottom: "10px",
+                color: "#374151",
                 fontWeight: "bold",
+                fontSize: "16px",
               }}
             >
               كلمة المرور
@@ -197,16 +199,22 @@ export default function LoginPage() {
               required
               style={{
                 width: "100%",
-                padding: "12px 15px",
+                padding: "15px 20px",
                 border: "2px solid #e5e7eb",
-                borderRadius: "8px",
+                borderRadius: "10px",
                 fontSize: "16px",
                 outline: "none",
-                transition: "border-color 0.3s",
+                transition: "all 0.3s",
                 boxSizing: "border-box" as const,
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#1e3a8a";
+                e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#e5e7eb";
+                e.target.style.boxShadow = "none";
+              }}
               placeholder="أدخل كلمة المرور"
             />
           </div>
@@ -217,25 +225,50 @@ export default function LoginPage() {
             disabled={loading}
             style={{
               width: "100%",
-              padding: "15px",
-              backgroundColor: loading ? "#9ca3af" : "#667eea",
+              padding: "18px",
+              backgroundColor: loading ? "#9ca3af" : "#1e3a8a",
               color: "white",
               border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
+              borderRadius: "10px",
+              fontSize: "18px",
               fontWeight: "bold",
               cursor: loading ? "not-allowed" : "pointer",
-              transition: "background-color 0.3s",
-              marginBottom: "15px",
+              transition: "all 0.3s",
+              marginBottom: "20px",
+              boxShadow: loading ? "none" : "0 4px 15px rgba(30,58,138,0.3)",
             }}
             onMouseOver={(e) => {
-              if (!loading) e.currentTarget.style.backgroundColor = "#5a67d8";
+              if (!loading) {
+                e.currentTarget.style.backgroundColor = "#1e40af";
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }
             }}
             onMouseOut={(e) => {
-              if (!loading) e.currentTarget.style.backgroundColor = "#667eea";
+              if (!loading) {
+                e.currentTarget.style.backgroundColor = "#1e3a8a";
+                e.currentTarget.style.transform = "translateY(0)";
+              }
             }}
           >
-            {loading ? "⏳ جاري تسجيل الدخول..." : "🔓 تسجيل الدخول"}
+            {loading ? (
+              <>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "20px",
+                    height: "20px",
+                    border: "2px solid #ffffff",
+                    borderTop: "2px solid transparent",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
+                    marginLeft: "10px",
+                  }}
+                ></span>
+                جاري التحقق...
+              </>
+            ) : (
+              "🔓 دخول"
+            )}
           </button>
 
           {/* Test Data Button */}
@@ -244,44 +277,82 @@ export default function LoginPage() {
             onClick={fillTestData}
             style={{
               width: "100%",
-              padding: "10px",
-              backgroundColor: "#f3f4f6",
-              color: "#374151",
-              border: "1px solid #d1d5db",
-              borderRadius: "8px",
+              padding: "12px",
+              backgroundColor: "#f8fafc",
+              color: "#475569",
+              border: "2px solid #e2e8f0",
+              borderRadius: "10px",
               fontSize: "14px",
               cursor: "pointer",
-              marginBottom: "20px",
+              marginBottom: "30px",
+              transition: "all 0.3s",
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = "#f1f5f9";
+              e.currentTarget.style.borderColor = "#cbd5e1";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = "#f8fafc";
+              e.currentTarget.style.borderColor = "#e2e8f0";
             }}
           >
             🔧 ملء البيانات التجريبية (admin / admin123)
           </button>
         </form>
 
+        {/* Note */}
+        <div
+          style={{
+            backgroundColor: "#fef3c7",
+            border: "1px solid #f59e0b",
+            borderRadius: "10px",
+            padding: "15px",
+            marginBottom: "20px",
+            fontSize: "13px",
+            color: "#92400e",
+          }}
+        >
+          📝 <strong>ملاحظة:</strong> لا يتم حفظ بيانات تسجيل الدخول. يجب إدخال
+          البيانات في كل مرة.
+        </div>
+
         {/* Footer */}
         <div
           style={{
-            paddingTop: "20px",
+            paddingTop: "25px",
             borderTop: "1px solid #e5e7eb",
-            fontSize: "12px",
-            color: "#9ca3af",
+            fontSize: "13px",
+            color: "#6b7280",
           }}
         >
-          <p style={{ margin: "0 0 10px 0" }}>🔒 منطقة محمية للمدراء فقط</p>
+          <p style={{ margin: "0 0 15px 0" }}>🔒 منطقة محمية للمدراء فقط</p>
           <button
             onClick={() => (window.location.href = "/")}
             style={{
               background: "none",
               border: "none",
-              color: "#667eea",
+              color: "#1e3a8a",
               cursor: "pointer",
               textDecoration: "underline",
+              fontSize: "14px",
             }}
           >
             ← العودة للصفحة الرئيسية
           </button>
         </div>
       </div>
+
+      {/* CSS Animation */}
+      <style jsx>{`
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }
