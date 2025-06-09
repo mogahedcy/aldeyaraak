@@ -42,6 +42,7 @@ const publicPaths = [
   "/api/auth/new-login",
   "/api/auth/check-session",
   "/api/auth/new-logout",
+  "/api/upload",
   "/api/simple-login",
   "/api/check-login",
   "/api/fast-login",
