@@ -1,10 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-// إنشاء instance واحد مشترك مع connection pooling
-const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-});
+import { prisma } from "@/lib/prisma";
 
 // GET - جلب جميع المشاريع
 export async function GET(request: NextRequest) {
@@ -262,7 +257,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log("��� تم إنشاء المشروع بنجاح:", {
+    console.log("✅ تم إنشاء المشروع بنجاح:", {
       id: project.id,
       title: project.title,
       mediaCount: project.mediaItems.length,
