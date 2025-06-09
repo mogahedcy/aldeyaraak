@@ -60,7 +60,7 @@ function checkRateLimit(ip: string): boolean {
   return record.count <= RATE_LIMIT_MAX_REQUESTS;
 }
 
-// فحص الصلاحيات للمسارات المحمية
+// فحص ال��لاحيات للمسارات المحمية
 async function checkAuth(request: NextRequest): Promise<boolean> {
   try {
     const { pathname } = request.nextUrl;
@@ -183,6 +183,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
+  // تجنب حلقة إعادة التوجيه - إذا كان المستخدم في صفحة login بالفعل
+  if (pathname === "/login") {
+    const response = NextResponse.next();
+    return addSecurityHeaders(response);
+  }
+
   // فحص المسارات المحمية
   const isProtectedPath = protectedPaths.some((path) =>
     pathname.startsWith(path),
@@ -213,12 +219,15 @@ export async function middleware(request: NextRequest) {
           { status: 401 },
         );
       } else {
-        // إعادة توجيه للصفحة الرئيسية أو صفحة تسجيل ا��دخول
+        // تجنب حلقة إعادة التوجيه
+        console.log(`🔄 إعادة توجيه من ${pathname} إلى /login`);
         const url = request.nextUrl.clone();
         url.pathname = "/login";
         url.searchParams.set("callbackUrl", pathname);
         return NextResponse.redirect(url);
       }
+    } else {
+      console.log(`✅ تم التحقق من الصلاحية للمسار: ${pathname}`);
     }
   }
 
