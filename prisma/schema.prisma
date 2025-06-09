@@ -59,6 +59,10 @@ model MediaItem {
   // Relations
   project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  // Database indexes for performance
+  @@index([projectId])
+  @@index([order])
+  @@index([type])
   @@map("media_items")
 }
 
