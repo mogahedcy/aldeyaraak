@@ -34,7 +34,26 @@ export async function POST(request: NextRequest) {
   try {
     console.log("🚀 بدء عملية رفع الملفات...");
 
-    const formData = await request.formData();
+    // Add proper error handling for form data parsing
+    let formData;
+    try {
+      formData = await request.formData();
+    } catch (formError) {
+      console.error("❌ خطأ في تحليل البيانات:", formError);
+      return new NextResponse(
+        JSON.stringify({
+          success: false,
+          error: "فشل في تحليل البيانات المرسلة",
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    }
+
     const files = formData.getAll("files") as File[];
     const singleFile = formData.get("file") as File;
 
@@ -46,12 +65,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (filesToProcess.length === 0) {
-      return NextResponse.json(
-        {
+      return new NextResponse(
+        JSON.stringify({
           success: false,
           error: "لم يتم تحديد أي ملفات للرفع",
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-        { status: 400 },
       );
     }
 
@@ -209,18 +233,23 @@ export async function POST(request: NextRequest) {
     );
 
     if (successfulFiles.length === 0) {
-      return NextResponse.json(
-        {
+      return new NextResponse(
+        JSON.stringify({
           success: false,
           error: "فشل في رفع جميع الملفات",
           details: failedFiles.map((f) => f.error),
           failed_files: failedFiles,
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-        { status: 400 },
       );
     }
 
-    return NextResponse.json({
+    const responseData = {
       success: true,
       message: `تم رفع ${successfulFiles.length} ملف بنجاح${failedFiles.length > 0 ? `، وفشل ${failedFiles.length} ملف` : ""}`,
       files: successfulFiles,
@@ -229,18 +258,29 @@ export async function POST(request: NextRequest) {
       ...(failedFiles.length > 0 && {
         warnings: failedFiles.map((f) => `${f.originalName}: ${f.error}`),
       }),
+    };
+
+    return new NextResponse(JSON.stringify(responseData), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
     console.error("❌ خطأ عام في رفع الملفات:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: "حدث خطأ في نظام رفع الملفات",
-        details: error instanceof Error ? error.message : "خطأ غير معروف",
+    const errorResponse = {
+      success: false,
+      error: "حدث خطأ في نظام رفع الملفات",
+      details: error instanceof Error ? error.message : "خطأ غير معروف",
+    };
+
+    return new NextResponse(JSON.stringify(errorResponse), {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
       },
-      { status: 500 },
-    );
+    });
   }
 }
 
