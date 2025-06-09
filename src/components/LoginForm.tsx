@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   Eye,
@@ -103,7 +103,7 @@ export default function LoginForm() {
             <Shield className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            تسجيل ا��دخول
+            تسجيل الدخول
           </h1>
           <p className="text-gray-600">لوحة تحكم محترفين الديار العالمية</p>
         </div>
