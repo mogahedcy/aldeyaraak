@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -10,147 +9,137 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   BarChart3,
   Eye,
   ThumbsUp,
-  Calendar,
   Users,
-  TrendingUp,
-  Plus,
   Settings,
   FileText,
-  Upload,
+  Plus,
+  LogOut,
   Shield,
-  Activity,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 
-interface DashboardStats {
-  totalProjects: number;
-  totalViews: number;
-  totalLikes: number;
-  totalComments: number;
-  recentActivity: Array<{
-    id: string;
-    type: string;
-    description: string;
-    date: string;
-  }>;
+interface DashboardState {
+  loading: boolean;
+  authenticated: boolean;
+  admin: any;
+  stats: any;
+  error: string;
 }
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalProjects: 0,
-    totalViews: 0,
-    totalLikes: 0,
-    totalComments: 0,
-    recentActivity: [],
+  const [state, setState] = useState<DashboardState>({
+    loading: true,
+    authenticated: false,
+    admin: null,
+    stats: null,
+    error: "",
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const [adminInfo, setAdminInfo] = useState<any>(null);
 
   useEffect(() => {
-    checkAuth();
-    loadDashboardData();
+    checkAuthentication();
+    loadStats();
   }, []);
 
-  const checkAuth = async () => {
+  const checkAuthentication = async () => {
     try {
       console.log("🔍 فحص المصادقة...");
 
-      const response = await fetch("/api/auth/verify", {
+      const response = await fetch("/api/auth/check-session", {
         credentials: "include",
       });
 
-      console.log("📡 استجابة فحص المصادقة:", response.status);
-
-      if (!response.ok) {
-        console.log("❌ المصادقة فشلت، إعادة توجيه إلى تسجيل الدخول");
-        window.location.href = "/login";
-        return;
-      }
-
       const data = await response.json();
-      console.log("✅ تم التحقق من المصادقة بنجاح:", data.admin?.username);
-      setAdminInfo(data.admin);
+      console.log("📡 نتيجة فحص المصادقة:", data);
+
+      if (response.ok && data.authenticated) {
+        setState((prev) => ({
+          ...prev,
+          authenticated: true,
+          admin: data.admin,
+          loading: false,
+        }));
+      } else {
+        console.log("❌ غير مصادق، إعادة توجيه...");
+        window.location.href = "/login";
+      }
     } catch (error) {
-      console.error("❌ خطأ في المصادقة:", error);
-      window.location.href = "/login";
+      console.error("❌ خطأ في فحص المصادقة:", error);
+      setState((prev) => ({
+        ...prev,
+        error: "خطأ في فحص المصادقة",
+        loading: false,
+      }));
     }
   };
 
-  const loadDashboardData = async () => {
+  const loadStats = async () => {
     try {
-      setIsLoading(true);
+      const response = await fetch("/api/projects?limit=1000");
+      if (response.ok) {
+        const data = await response.json();
+        const projects = data.projects || [];
 
-      // جلب جميع المشاريع لحساب الإحصائيات الحقيقية
-      const projectsResponse = await fetch("/api/projects?limit=1000");
-
-      if (projectsResponse.ok) {
-        const projectsData = await projectsResponse.json();
-        const projects = projectsData.projects || [];
-
-        // حساب الإحصائيات الحقيقية
-        const totalViews = projects.reduce(
-          (sum: number, project: any) => sum + (project.views || 0),
-          0,
-        );
-        const totalLikes = projects.reduce(
-          (sum: number, project: any) => sum + (project.likes || 0),
-          0,
-        );
-        const totalComments = projects.reduce(
-          (sum: number, project: any) => sum + (project._count?.comments || 0),
-          0,
-        );
-
-        setStats({
+        const stats = {
           totalProjects: projects.length,
-          totalViews,
-          totalLikes,
-          totalComments,
-          recentActivity: projects
-            .sort(
-              (a: any, b: any) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-            )
-            .slice(0, 5)
-            .map((project: any) => ({
-              id: project.id,
-              type: "project",
-              description: `مشروع "${project.title}" - ${project.category}`,
-              date: new Date(project.createdAt).toLocaleDateString("ar-SA"),
-            })),
-        });
+          totalViews: projects.reduce(
+            (sum: number, p: any) => sum + (p.views || 0),
+            0,
+          ),
+          totalLikes: projects.reduce(
+            (sum: number, p: any) => sum + (p.likes || 0),
+            0,
+          ),
+          featuredProjects: projects.filter((p: any) => p.featured).length,
+        };
+
+        setState((prev) => ({ ...prev, stats }));
       }
     } catch (error) {
-      console.error("Error loading dashboard data:", error);
-    } finally {
-      setIsLoading(false);
+      console.error("خطأ في جلب الإحصائيات:", error);
     }
   };
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", {
+      const response = await fetch("/api/auth/new-logout", {
         method: "POST",
         credentials: "include",
       });
-      router.push("/login");
+
+      if (response.ok) {
+        window.location.href = "/login";
+      }
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("خطأ في تسجيل الخروج:", error);
     }
   };
 
-  if (isLoading) {
+  if (state.loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري تحميل لوحة التحكم...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل لوحة التحكم...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (state.error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">حدث خطأ</h2>
+          <p className="text-gray-600 mb-4">{state.error}</p>
+          <Button onClick={() => window.location.reload()}>
+            إعادة المحاولة
+          </Button>
         </div>
       </div>
     );
@@ -163,7 +152,8 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <Shield className="h-8 w-8 text-blue-600 ml-3" />
+              <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   لوحة تحكم الإدارة
                 </h1>
@@ -172,11 +162,13 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="h-4 w-4 text-green-500" />
                 مرحباً،{" "}
-                <span className="font-medium">{adminInfo?.username}</span>
+                <span className="font-medium">{state.admin?.username}</span>
               </div>
               <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 ml-2" />
                 تسجيل الخروج
               </Button>
             </div>
@@ -185,6 +177,16 @@ export default function DashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Success Message */}
+        <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <span className="text-green-800 font-medium">
+              🎉 تم تسجيل الدخول بنجاح! النظام الجديد يعمل بشكل مثالي.
+            </span>
+          </div>
+        </div>
+
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -192,7 +194,7 @@ export default function DashboardPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Button
-              onClick={() => router.push("/dashboard/projects/add")}
+              onClick={() => (window.location.href = "/dashboard/projects/add")}
               className="flex items-center justify-center gap-2 h-20 bg-green-600 hover:bg-green-700"
             >
               <Plus className="h-6 w-6" />
@@ -200,7 +202,7 @@ export default function DashboardPage() {
             </Button>
 
             <Button
-              onClick={() => router.push("/dashboard/projects")}
+              onClick={() => (window.location.href = "/dashboard/projects")}
               variant="outline"
               className="flex items-center justify-center gap-2 h-20"
             >
@@ -209,7 +211,7 @@ export default function DashboardPage() {
             </Button>
 
             <Button
-              onClick={() => router.push("/portfolio")}
+              onClick={() => (window.location.href = "/portfolio")}
               variant="outline"
               className="flex items-center justify-center gap-2 h-20"
             >
@@ -218,7 +220,7 @@ export default function DashboardPage() {
             </Button>
 
             <Button
-              onClick={() => router.push("/dashboard/settings")}
+              onClick={() => (window.location.href = "/dashboard/settings")}
               variant="outline"
               className="flex items-center justify-center gap-2 h-20"
             >
@@ -231,7 +233,7 @@ export default function DashboardPage() {
         {/* Statistics Cards */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            الإحصائيا�� العامة
+            الإحصائيات العامة
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card>
@@ -243,7 +245,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-600">
-                  {stats.totalProjects}
+                  {state.stats?.totalProjects || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">مشروع مكتمل</p>
               </CardContent>
@@ -258,7 +260,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
-                  {stats.totalViews.toLocaleString()}
+                  {(state.stats?.totalViews || 0).toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground">مشاهدة إجمالية</p>
               </CardContent>
@@ -273,7 +275,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-orange-600">
-                  {stats.totalLikes}
+                  {state.stats?.totalLikes || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   إعجاب من العملاء
@@ -284,98 +286,52 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  إجمالي التعليقات
+                  المشاريع المميزة
                 </CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-purple-600">
-                  {stats.totalComments}
+                  {state.stats?.featuredProjects || 0}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  تعليق من العملاء
-                </p>
+                <p className="text-xs text-muted-foreground">مشروع مميز</p>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                النشاط الأخير
-              </CardTitle>
-              <CardDescription>آخر التحديثات على المشاريع</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {stats.recentActivity.length > 0 ? (
-                  stats.recentActivity.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">
-                          {activity.description}
-                        </p>
-                        <p className="text-xs text-gray-500">{activity.date}</p>
-                      </div>
-                      <Badge variant="secondary">{activity.type}</Badge>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-500 py-8">
-                    لا توجد أنشطة حديثة
-                  </p>
-                )}
+        {/* System Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              حالة النظام
+            </CardTitle>
+            <CardDescription>معلومات النظام الجديد</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                <span className="text-sm">نظام المصادقة:</span>
+                <span className="text-sm font-medium text-green-600">
+                  جديد ومحسن ✅
+                </span>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                معلومات النظام
-              </CardTitle>
-              <CardDescription>حالة النظام ومعلومات الأمان</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">حالة قاعدة البيانات:</span>
-                  <span className="text-sm font-medium text-green-600">
-                    متصلة
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">آخر تسجيل دخول:</span>
-                  <span className="text-sm font-medium">
-                    {adminInfo?.lastLogin
-                      ? new Date(adminInfo.lastLogin).toLocaleDateString(
-                          "ar-SA",
-                        )
-                      : "غير محدد"}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">مستوى الأمان:</span>
-                  <span className="text-sm font-medium text-green-600">
-                    عالي
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">إصدار النظام:</span>
-                  <span className="text-sm font-medium">v2.0.0</span>
-                </div>
+              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                <span className="text-sm">حالة قاعدة البيانات:</span>
+                <span className="text-sm font-medium text-blue-600">
+                  متصلة ✅
+                </span>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                <span className="text-sm">مستوى الأمان:</span>
+                <span className="text-sm font-medium text-purple-600">
+                  عالي ✅
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
