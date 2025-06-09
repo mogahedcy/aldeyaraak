@@ -4,21 +4,26 @@ import "./globals.css";
 import ClientBody from "./ClientBody";
 import StructuredDataScript from "@/components/StructuredDataScript";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const notoSansArabic = Noto_Sans_Arabic({
   variable: "--font-arabic",
   subsets: ["arabic"],
   weight: ["300", "400", "500", "600", "700"],
-  display: 'swap',
+  display: "swap",
   preload: true,
-  fallback: ['system-ui', 'arial']
+  fallback: ["system-ui", "arial"],
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-  title: "محترفين الديار العالمية | مظلات، برجولات، سواتر، ساندوتش بانل، ترميم، تنسيق حدائق جدة",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  ),
+  title:
+    "محترفين الديار العالمية | مظلات، برجولات، سواتر، ساندوتش بانل، ترميم، تنسيق حدائق جدة",
   description:
-    "محترفين الديار العالمية - شركة متخصصة في جدة تقدم خدمات شاملة: مظلات سيارات، برجولات حدائق، سواتر خصوصية، ساندوتش بانل، ترميم ملحقات، تنسيق حدائق، بيوت شعر تراثية، وخيام ملكية. خبرة 15 عاماً في تصميم وتنفيذ المشاريع بأعلى معايير الجودة في جدة والمملكة العربية السعودية.",
+    "محترفين الديار العالمية - شركة متخصصة في جدة ��قدم خدمات شاملة: مظلات سيارات، برجولات حدائق، سواتر خصوصية، ساندوتش بانل، ترميم ملحقات، تنسيق حدائق، بيوت شعر تراثية، وخيام ملكية. خبرة 15 عاماً في تصميم وتنفيذ المشاريع بأعلى معايير الجودة في جدة والمملكة العربية السعودية.",
   keywords:
     "محترفين الديار العالمية، محترفين الديار جدة، مظلات سيارات جدة، برجولات حدائق جدة، سواتر خصوصية جدة، ساندوتش بانل جدة، ترميم ملحقات جدة، تنسيق حدائق جدة، بيوت شعر جدة، خيام ملكية جدة، مقاولات جدة، تركيب مظلات، تركيب برجولات، تركيب سواتر، أعمال معادن جدة، تنسيق مساحات خارجية",
   authors: [{ name: "محترفين الديار العالمية" }],
@@ -31,7 +36,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "محترفين الديار العالمية - خدمات شاملة في جدة",
-    description: "شركة متخصصة في المظلات، البرجولات، السواتر، وتنسيق الحدائق في جدة",
+    description:
+      "شركة متخصصة في المظلات، البر��ولات، السواتر، وتنسيق الحدائق في جدة",
     url: "https://aldeyarksa.tech",
     siteName: "محترفين الديار العالمية",
     locale: "ar_SA",
@@ -119,7 +125,7 @@ const structuredData = {
     "https://twitter.com/aldeyar_jeddah",
   ],
   description:
-    "محترفين الديار العالمية - شركة متخصصة في جدة تقدم خدمات شاملة: مظلات سيارات، برجولات حدائق، سواتر خصوصية، ساندوتش بانل، ترميم ملحقات، تنسيق حدائق، بيوت شعر تراثية، وخيام ملكية. خبرة 15 عاماً في تصميم وتنفيذ المشاريع بأعلى معايير الجودة في جدة والمملكة العربية السعودية.",
+    "محترفين الديار العالمية - شركة متخصصة في جدة تقدم خدمات شاملة: مظلات سيارات، برجولات حدائق، سواتر خصوصية، ساندوتش بانل، تر��يم ملحقات، تنسيق حدائق، بيوت شعر تراثية، وخيام ملكية. خبرة 15 عاماً في تصميم وتنفيذ المشاريع بأعلى معايير الجودة في جدة والمملكة العربية السعودية.",
   priceRange: "SAR",
 };
 
@@ -135,9 +141,7 @@ export default function RootLayout({
         <StructuredDataScript data={structuredData} />
       </head>
       <body className="font-arabic">
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
   );
