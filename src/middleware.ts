@@ -26,6 +26,7 @@ const publicPaths = [
   "/clear-cookies",
   "/test-dashboard",
   "/admin-panel",
+  "/simple-dashboard",
   "/api/health-check",
   "/api/auth/login",
   "/api/auth/logout",
