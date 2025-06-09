@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
@@ -30,6 +30,21 @@ const UPLOAD_CONFIG = {
   },
 };
 
+// دالة مساعدة لإرجاع استجابة JSON نظيفة
+function createJSONResponse(data: any, status: number = 200) {
+  const response = new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+  return response;
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log("🚀 بدء عملية رفع الملفات...");
@@ -40,17 +55,12 @@ export async function POST(request: NextRequest) {
       formData = await request.formData();
     } catch (formError) {
       console.error("❌ خطأ في تحليل البيانات:", formError);
-      return new NextResponse(
-        JSON.stringify({
+      return createJSONResponse(
+        {
           success: false,
           error: "فشل في تحليل البيانات المرسلة",
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-          },
         },
+        400,
       );
     }
 
@@ -65,17 +75,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (filesToProcess.length === 0) {
-      return new NextResponse(
-        JSON.stringify({
+      return createJSONResponse(
+        {
           success: false,
           error: "لم يتم تحديد أي ملفات للرفع",
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-          },
         },
+        400,
       );
     }
 
@@ -233,19 +238,14 @@ export async function POST(request: NextRequest) {
     );
 
     if (successfulFiles.length === 0) {
-      return new NextResponse(
-        JSON.stringify({
+      return createJSONResponse(
+        {
           success: false,
           error: "فشل في رفع جميع الملفات",
           details: failedFiles.map((f) => f.error),
           failed_files: failedFiles,
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-          },
         },
+        400,
       );
     }
 
@@ -260,12 +260,7 @@ export async function POST(request: NextRequest) {
       }),
     };
 
-    return new NextResponse(JSON.stringify(responseData), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return createJSONResponse(responseData);
   } catch (error) {
     console.error("❌ خطأ عام في رفع الملفات:", error);
 
@@ -275,23 +270,11 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : "خطأ غير معروف",
     };
 
-    return new NextResponse(JSON.stringify(errorResponse), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return createJSONResponse(errorResponse, 500);
   }
 }
 
 // دعم OPTIONS للـ CORS
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
+  return createJSONResponse({ ok: true });
 }
