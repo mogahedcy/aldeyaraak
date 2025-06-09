@@ -59,21 +59,21 @@ export default function PortfolioSection() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("الكل");
 
-  // جلب أحدث المشاريع المميزة فقط
+  // جلب المشاريع المميزة المحسنة
   useEffect(() => {
-    const fetchLatestProjects = async () => {
+    const fetchFeaturedProjects = async () => {
       try {
         setLoading(true);
 
-        // جلب 12 مشروع فقط للعرض السريع
-        const response = await fetch(
-          `/api/projects?limit=12&sort=featured&featured=true`,
-        );
+        // استخدام API محسن للمشاريع المميزة
+        const response = await fetch(`/api/projects/featured?limit=8`);
         const data = await response.json();
 
         if (data.success && data.projects) {
           setProjects(data.projects);
-          console.log("✅ تم جلب المشاريع المميزة:", data.projects.length);
+          console.log(
+            `✅ تم جلب ${data.projects.length} مشروع مميز في ${data.performance?.queryTime || 0}ms`,
+          );
         } else {
           console.warn("لا توجد مشاريع متاحة");
           setProjects([]);
@@ -86,7 +86,7 @@ export default function PortfolioSection() {
       }
     };
 
-    fetchLatestProjects();
+    fetchFeaturedProjects();
   }, []);
 
   const filteredProjects =
@@ -127,7 +127,7 @@ export default function PortfolioSection() {
             أحدث أعمال محترفين الديار في جدة
           </h2>
           <p className="text-lg text-muted-foreground max-w-4xl mx-auto mb-12 leading-relaxed">
-            استكشف أحدث مشاريعنا المتميزة في جدة وا��مناطق المحيطة. نعرض لك أحدث
+            استكشف أحدث مشاريعنا المتميزة في جدة والمناطق المحيطة. نعرض لك أحدث
             عمل في كل خدمة من خدماتنا المتخصصة في المظلات، برجولات، السواتر،
             الساندوتش بانل، تنسيق الحدائق، الخيام الملكية، بيوت الشعر، والترميم
             بأعلى معايير الجودة والحرفية
