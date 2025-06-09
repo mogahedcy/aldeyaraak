@@ -1,28 +1,34 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  Upload, 
-  X, 
-  Eye, 
-  Save, 
-  ArrowLeft, 
-  Image as ImageIcon, 
-  Video, 
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Upload,
+  X,
+  Eye,
+  Save,
+  ArrowLeft,
+  Image as ImageIcon,
+  Video,
   Trash2,
-  CheckCircle
-} from 'lucide-react';
+  CheckCircle,
+} from "lucide-react";
 
 interface MediaFile {
   id: string;
   file: File;
   preview: string;
-  type: 'image' | 'video';
+  type: "image" | "video";
   title: string;
 }
 
@@ -31,34 +37,34 @@ export default function AddProjectPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: 'مظلات',
-    location: '',
-    client: '',
-    projectDuration: '',
-    projectCost: '',
-    completionDate: '',
-    featured: false
+    title: "",
+    description: "",
+    category: "مظلات",
+    location: "",
+    client: "",
+    projectDuration: "",
+    projectCost: "",
+    completionDate: "",
+    featured: false,
   });
 
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [materials, setMaterials] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
-  const [newMaterial, setNewMaterial] = useState('');
+  const [newTag, setNewTag] = useState("");
+  const [newMaterial, setNewMaterial] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
 
   const categories = [
-    'مظلات',
-    'برجولات',
-    'سواتر',
-    'ساندوتش بانل',
-    'تنسيق حدائق',
-    'خيام ملكية',
-    'بيوت شعر',
-    'ترميم'
+    "مظلات",
+    "برجولات",
+    "سواتر",
+    "ساندوتش بانل",
+    "تنسيق حدائق",
+    "خيام ملكية",
+    "بيوت شعر",
+    "ترميم",
   ];
 
   useEffect(() => {
@@ -67,23 +73,23 @@ export default function AddProjectPage() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/verify', {
-        credentials: 'include'
+      const response = await fetch("/api/auth/verify", {
+        credentials: "include",
       });
 
       if (!response.ok) {
-        router.push('/login');
+        router.push("/login");
       }
     } catch (error) {
-      console.error('Authentication error:', error);
-      router.push('/login');
+      console.error("Authentication error:", error);
+      router.push("/login");
     }
   };
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -91,92 +97,124 @@ export default function AddProjectPage() {
     const files = event.target.files;
     if (!files) return;
 
-    Array.from(files).forEach(file => {
-      const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
+    Array.from(files).forEach((file) => {
+      const mediaType = file.type.startsWith("image/") ? "image" : "video";
       const mediaFile: MediaFile = {
         id: Math.random().toString(36).substr(2, 9),
         file,
         preview: URL.createObjectURL(file),
         type: mediaType,
-        title: file.name.split('.')[0]
+        title: file.name.split(".")[0],
       };
 
-      setMediaFiles(prev => [...prev, mediaFile]);
+      setMediaFiles((prev) => [...prev, mediaFile]);
     });
 
     // Reset input
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const removeMediaFile = (id: string) => {
-    setMediaFiles(prev => {
-      const fileToRemove = prev.find(f => f.id === id);
+    setMediaFiles((prev) => {
+      const fileToRemove = prev.find((f) => f.id === id);
       if (fileToRemove) {
         URL.revokeObjectURL(fileToRemove.preview);
       }
-      return prev.filter(f => f.id !== id);
+      return prev.filter((f) => f.id !== id);
     });
   };
 
   const updateMediaTitle = (id: string, newTitle: string) => {
-    setMediaFiles(prev => prev.map(file => 
-      file.id === id ? { ...file, title: newTitle } : file
-    ));
+    setMediaFiles((prev) =>
+      prev.map((file) =>
+        file.id === id ? { ...file, title: newTitle } : file,
+      ),
+    );
   };
 
   const addTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags(prev => [...prev, newTag.trim()]);
-      setNewTag('');
+      setTags((prev) => [...prev, newTag.trim()]);
+      setNewTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setTags(prev => prev.filter(tag => tag !== tagToRemove));
+    setTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
   const addMaterial = () => {
     if (newMaterial.trim() && !materials.includes(newMaterial.trim())) {
-      setMaterials(prev => [...prev, newMaterial.trim()]);
-      setNewMaterial('');
+      setMaterials((prev) => [...prev, newMaterial.trim()]);
+      setNewMaterial("");
     }
   };
 
   const removeMaterial = (materialToRemove: string) => {
-    setMaterials(prev => prev.filter(material => material !== materialToRemove));
+    setMaterials((prev) =>
+      prev.filter((material) => material !== materialToRemove),
+    );
   };
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData
+    console.log("🚀 بدء رفع الملف:", {
+      name: file.name,
+      type: file.type,
+      size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'فشل في رفع الملف');
-    }
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const data = await response.json();
-    console.log('🔍 نتيجة الرفع:', data);
-    
-    // التحقق من وجود الملفات المرفوعة
-    if (!data.files || data.files.length === 0) {
-      throw new Error('لم يتم إرجاع أي ملفات من الخادم');
-    }
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-    // إرجاع رابط الملف الأول
-    const uploadedFile = data.files[0];
-    if (!uploadedFile.src && !uploadedFile.url) {
-      throw new Error('لم يتم إرجاع رابط صحيح للملف');
-    }
+      console.log("📡 استجابة السيرفر:", response.status, response.statusText);
 
-    return uploadedFile.src || uploadedFile.url;
+      if (!response.ok) {
+        let errorMessage = "فشل في رفع الملف";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.details || errorMessage;
+          console.error("❌ خطأ من السيرفر:", errorData);
+        } catch (parseError) {
+          console.error("❌ خطأ في تحليل استجابة الخطأ:", parseError);
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("✅ نتيجة الرفع:", data);
+
+      // التحقق من نجاح العملية
+      if (!data.success) {
+        throw new Error(data.error || "فشل في رفع الملف");
+      }
+
+      // التحقق من وجود الملفات المرفوعة
+      if (!data.files || data.files.length === 0) {
+        throw new Error("لم يتم إرجاع أي ملفات من الخادم");
+      }
+
+      // إرجاع رابط الملف الأول
+      const uploadedFile = data.files[0];
+      if (!uploadedFile.src && !uploadedFile.url) {
+        throw new Error("لم يتم إرجاع رابط صحيح للملف");
+      }
+
+      const fileUrl = uploadedFile.src || uploadedFile.url;
+      console.log("🔗 رابط الملف:", fileUrl);
+
+      return fileUrl;
+    } catch (networkError) {
+      console.error("❌ خطأ في الشبكة:", networkError);
+      throw new Error(`خطأ في الاتصال: ${networkError.message}`);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -186,50 +224,64 @@ export default function AddProjectPage() {
     try {
       // التحقق من البيانات الأساسية
       if (!formData.title || !formData.description || !formData.category) {
-        alert('يرجى ملء جميع الحقول المطلوبة');
+        alert("يرجى ملء جميع الحقول المطلوبة");
         return;
       }
 
       // رفع الملفات أولاً
       const uploadedMedia = [];
       let failedUploads = 0;
-      
+
       for (let i = 0; i < mediaFiles.length; i++) {
         const mediaFile = mediaFiles[i];
         try {
-          console.log(`📤 رفع الملف ${i + 1} من ${mediaFiles.length}: ${mediaFile.file.name}`);
-          
+          console.log(
+            `📤 رفع الملف ${i + 1} من ${mediaFiles.length}: ${mediaFile.file.name}`,
+          );
+
           const url = await uploadToCloudinary(mediaFile.file);
           if (!url) {
-            throw new Error('لم يتم إرجاع رابط صحيح');
+            throw new Error("لم يتم إرجاع رابط صحيح");
           }
-          
-          console.log(`✅ تم رفع الملف بنجاح: ${mediaFile.file.name} -> ${url}`);
-          
+
+          console.log(
+            `✅ تم رفع الملف بنجاح: ${mediaFile.file.name} -> ${url}`,
+          );
+
           uploadedMedia.push({
             type: mediaFile.type.toUpperCase(),
             src: url,
             thumbnail: url,
             title: mediaFile.title || mediaFile.file.name,
-            description: mediaFile.description || '',
-            order: uploadedMedia.length
+            description: mediaFile.description || "",
+            order: uploadedMedia.length,
           });
         } catch (uploadError) {
           failedUploads++;
-          console.error(`❌ خطأ في رفع الملف ${mediaFile.file.name}:`, uploadError);
-          
-          const errorMessage = uploadError instanceof Error ? uploadError.message : 'خطأ غير معروف';
-          alert(`فشل في رفع الملف: ${mediaFile.file.name}\nالخطأ: ${errorMessage}`);
+          console.error(
+            `❌ خطأ في رفع الملف ${mediaFile.file.name}:`,
+            uploadError,
+          );
+
+          const errorMessage =
+            uploadError instanceof Error
+              ? uploadError.message
+              : "خطأ غير معروف";
+          alert(
+            `فشل في رفع الملف: ${mediaFile.file.name}\nالخطأ: ${errorMessage}`,
+          );
           return;
         }
       }
-      
+
       if (uploadedMedia.length === 0) {
-        alert('لم يتم رفع أي ملفات بنجاح. يرجى المحاولة مرة أخرى.');
+        alert("لم يتم رفع أي ملفات بنجاح. يرجى ا��محاولة مرة أخرى.");
         return;
       }
-      
-      console.log(`📊 نتيجة الرفع: ${uploadedMedia.length} ملف نجح، ${failedUploads} ملف فشل`);
+
+      console.log(
+        `📊 نتيجة الرفع: ${uploadedMedia.length} ملف نجح، ${failedUploads} ملف فشل`,
+      );
 
       // إنشاء المشروع
       const projectData = {
@@ -237,30 +289,32 @@ export default function AddProjectPage() {
         mediaItems: uploadedMedia,
         tags: tags, // إرسال كـ array من strings
         materials: materials, // إرسال كـ array من strings
-        completionDate: new Date(formData.completionDate).toISOString()
+        completionDate: new Date(formData.completionDate).toISOString(),
       };
 
-      const response = await fetch('/api/projects', {
-        method: 'POST',
+      const response = await fetch("/api/projects", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(projectData),
-        credentials: 'include'
+        credentials: "include",
       });
 
       if (response.ok) {
         const result = await response.json();
-        alert('تم إضافة المشروع بنجاح! 🎉');
+        alert("تم إضافة المشروع بنجاح! 🎉");
         router.push(`/dashboard/projects/${result.project.id}`);
       } else {
         const error = await response.json();
-        console.error('API Error:', error);
-        alert(`خطأ في إضافة المشروع: ${error.error || 'خطأ غير معروف'}`);
+        console.error("API Error:", error);
+        alert(`خطأ في إضافة المشروع: ${error.error || "خطأ غير معروف"}`);
       }
     } catch (error) {
-      console.error('Error creating project:', error);
-      alert(`حدث خطأ في إنشاء المشروع: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`);
+      console.error("Error creating project:", error);
+      alert(
+        `حدث خطأ في إنشاء المشروع: ${error instanceof Error ? error.message : "خطأ غير معروف"}`,
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -272,7 +326,9 @@ export default function AddProjectPage() {
         <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-6">
-              <h1 className="text-2xl font-bold text-gray-900">معاينة المشروع</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                معاينة المشروع
+              </h1>
               <Button variant="outline" onClick={() => setPreviewMode(false)}>
                 <ArrowLeft className="h-4 w-4 ml-2" />
                 العودة للتحرير
@@ -284,9 +340,10 @@ export default function AddProjectPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Card>
             <CardHeader>
-              <CardTitle>{formData.title || 'عنوان المشروع'}</CardTitle>
+              <CardTitle>{formData.title || "عنوان المشروع"}</CardTitle>
               <CardDescription>
-                {formData.category} • {formData.location} • {formData.completionDate}
+                {formData.category} �� {formData.location} •{" "}
+                {formData.completionDate}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -295,16 +352,19 @@ export default function AddProjectPage() {
                 {mediaFiles.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {mediaFiles.map((media) => (
-                      <div key={media.id} className="aspect-video rounded-lg overflow-hidden">
-                        {media.type === 'image' ? (
-                          <img 
-                            src={media.preview} 
+                      <div
+                        key={media.id}
+                        className="aspect-video rounded-lg overflow-hidden"
+                      >
+                        {media.type === "image" ? (
+                          <img
+                            src={media.preview}
                             alt={media.title}
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <video 
-                            src={media.preview} 
+                          <video
+                            src={media.preview}
                             className="w-full h-full object-cover"
                             controls
                           />
@@ -317,7 +377,9 @@ export default function AddProjectPage() {
                 {/* Description */}
                 <div>
                   <h3 className="text-lg font-semibold mb-2">وصف المشروع</h3>
-                  <p className="text-gray-600">{formData.description || 'لا يوجد وصف متاح'}</p>
+                  <p className="text-gray-600">
+                    {formData.description || "لا يوجد وصف متاح"}
+                  </p>
                 </div>
 
                 {/* Project Details */}
@@ -325,9 +387,17 @@ export default function AddProjectPage() {
                   <div>
                     <h4 className="font-medium mb-2">تفاصيل المشروع</h4>
                     <div className="space-y-1 text-sm text-gray-600">
-                      <p><strong>العميل:</strong> {formData.client || 'غير محدد'}</p>
-                      <p><strong>المدة:</strong> {formData.projectDuration || 'غير محدد'}</p>
-                      <p><strong>التكلفة:</strong> {formData.projectCost || 'غير محدد'}</p>
+                      <p>
+                        <strong>العميل:</strong> {formData.client || "غير محدد"}
+                      </p>
+                      <p>
+                        <strong>المدة:</strong>{" "}
+                        {formData.projectDuration || "غير محدد"}
+                      </p>
+                      <p>
+                        <strong>التكلفة:</strong>{" "}
+                        {formData.projectCost || "غير محدد"}
+                      </p>
                     </div>
                   </div>
 
@@ -337,7 +407,10 @@ export default function AddProjectPage() {
                       <h4 className="font-medium mb-2">العلامات</h4>
                       <div className="flex flex-wrap gap-2">
                         {tags.map((tag) => (
-                          <span key={tag} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                          <span
+                            key={tag}
+                            className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                          >
                             {tag}
                           </span>
                         ))}
@@ -352,7 +425,10 @@ export default function AddProjectPage() {
                     <h4 className="font-medium mb-2">المواد المستخدمة</h4>
                     <div className="flex flex-wrap gap-2">
                       {materials.map((material) => (
-                        <span key={material} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                        <span
+                          key={material}
+                          className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
+                        >
                           {material}
                         </span>
                       ))}
@@ -374,17 +450,21 @@ export default function AddProjectPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
-                onClick={() => router.push('/dashboard/projects')}
+                onClick={() => router.push("/dashboard/projects")}
               >
                 <ArrowLeft className="h-4 w-4 ml-2" />
                 العودة
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">إضافة مشروع جديد</h1>
-                <p className="text-sm text-gray-500">إنشاء مشروع جديد في معرض الأعمال</p>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  إضافة مشروع جديد
+                </h1>
+                <p className="text-sm text-gray-500">
+                  إنشاء مشروع جديد في معرض الأعمال
+                </p>
               </div>
             </div>
 
@@ -421,7 +501,11 @@ export default function AddProjectPage() {
         </div>
       </header>
 
-      <form id="project-form" onSubmit={handleSubmit} className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <form
+        id="project-form"
+        onSubmit={handleSubmit}
+        className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      >
         <div className="space-y-8">
           {/* Basic Information */}
           <Card>
@@ -432,83 +516,115 @@ export default function AddProjectPage() {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-2">عنوان المشروع *</label>
+                  <label className="block text-sm font-medium mb-2">
+                    عنوان المشروع *
+                  </label>
                   <Input
                     required
                     value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
                     placeholder="مثال: مظلة سيارات فيلا الرياض"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">الفئة *</label>
+                  <label className="block text-sm font-medium mb-2">
+                    الفئة *
+                  </label>
                   <select
                     required
                     value={formData.category}
-                    onChange={(e) => handleInputChange('category', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("category", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">الموقع *</label>
+                  <label className="block text-sm font-medium mb-2">
+                    الموقع *
+                  </label>
                   <Input
                     required
                     value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("location", e.target.value)
+                    }
                     placeholder="مثال: جدة - حي الروضة"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">العميل</label>
+                  <label className="block text-sm font-medium mb-2">
+                    العميل
+                  </label>
                   <Input
                     value={formData.client}
-                    onChange={(e) => handleInputChange('client', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("client", e.target.value)
+                    }
                     placeholder="اسم العميل (اختياري)"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">تاريخ الإنجاز *</label>
+                  <label className="block text-sm font-medium mb-2">
+                    تاريخ الإنجاز *
+                  </label>
                   <Input
                     type="date"
                     required
                     value={formData.completionDate}
-                    onChange={(e) => handleInputChange('completionDate', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("completionDate", e.target.value)
+                    }
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">مدة التنفيذ</label>
+                  <label className="block text-sm font-medium mb-2">
+                    مدة التنفيذ
+                  </label>
                   <Input
                     value={formData.projectDuration}
-                    onChange={(e) => handleInputChange('projectDuration', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("projectDuration", e.target.value)
+                    }
                     placeholder="مثال: 5 أيام"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">التكلفة التقريبية</label>
+                  <label className="block text-sm font-medium mb-2">
+                    التكلفة التقريبية
+                  </label>
                   <Input
                     value={formData.projectCost}
-                    onChange={(e) => handleInputChange('projectCost', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("projectCost", e.target.value)
+                    }
                     placeholder="مثال: 15,000 ريال"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-2">وصف المشروع *</label>
+                  <label className="block text-sm font-medium mb-2">
+                    وصف المشروع *
+                  </label>
                   <Textarea
                     required
                     rows={4}
                     value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
                     placeholder="وصف تفصيلي للمشروع والمواد المستخدمة..."
                   />
                 </div>
@@ -518,10 +634,14 @@ export default function AddProjectPage() {
                     <input
                       type="checkbox"
                       checked={formData.featured}
-                      onChange={(e) => handleInputChange('featured', e.target.checked)}
+                      onChange={(e) =>
+                        handleInputChange("featured", e.target.checked)
+                      }
                       className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                     />
-                    <span className="text-sm font-medium">مشروع مميز (يظهر في الصفحة الرئيسية)</span>
+                    <span className="text-sm font-medium">
+                      مشروع مميز (يظهر في الصفحة الرئيسية)
+                    </span>
                   </label>
                 </div>
               </div>
@@ -532,7 +652,9 @@ export default function AddProjectPage() {
           <Card>
             <CardHeader>
               <CardTitle>الصور والفيديوهات</CardTitle>
-              <CardDescription>ارفع صور وفيديوهات المشروع (يُنصح برفع 5-10 صور على الأقل)</CardDescription>
+              <CardDescription>
+                ارفع صور وفيديوهات المشروع (يُنصح برفع 5-10 صور على الأقل)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -542,7 +664,9 @@ export default function AddProjectPage() {
                   className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-500 cursor-pointer transition-colors"
                 >
                   <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-lg font-medium text-gray-600 mb-2">انقر لرفع الملفات</p>
+                  <p className="text-lg font-medium text-gray-600 mb-2">
+                    انقر لرفع الملفات
+                  </p>
                   <p className="text-sm text-gray-500">
                     PNG, JPG, MP4, MOV حتى 10MB لكل ملف
                   </p>
@@ -559,20 +683,25 @@ export default function AddProjectPage() {
                 {/* Media Preview */}
                 {mediaFiles.length > 0 && (
                   <div className="space-y-4">
-                    <h4 className="font-medium">الملفات المرفوعة ({mediaFiles.length})</h4>
+                    <h4 className="font-medium">
+                      الملفات المرفوعة ({mediaFiles.length})
+                    </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {mediaFiles.map((media) => (
-                        <div key={media.id} className="border rounded-lg p-4 space-y-3">
+                        <div
+                          key={media.id}
+                          className="border rounded-lg p-4 space-y-3"
+                        >
                           <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
-                            {media.type === 'image' ? (
-                              <img 
-                                src={media.preview} 
+                            {media.type === "image" ? (
+                              <img
+                                src={media.preview}
                                 alt={media.title}
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <video 
-                                src={media.preview} 
+                              <video
+                                src={media.preview}
                                 className="w-full h-full object-cover"
                                 controls
                               />
@@ -580,7 +709,7 @@ export default function AddProjectPage() {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            {media.type === 'image' ? (
+                            {media.type === "image" ? (
                               <ImageIcon className="h-4 w-4 text-blue-500" />
                             ) : (
                               <Video className="h-4 w-4 text-green-500" />
@@ -588,7 +717,9 @@ export default function AddProjectPage() {
                             <Input
                               size="sm"
                               value={media.title}
-                              onChange={(e) => updateMediaTitle(media.id, e.target.value)}
+                              onChange={(e) =>
+                                updateMediaTitle(media.id, e.target.value)
+                              }
                               placeholder="عنوان الملف"
                             />
                             <Button
@@ -624,7 +755,9 @@ export default function AddProjectPage() {
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
                       placeholder="أضف علامة جديدة"
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                      onKeyPress={(e) =>
+                        e.key === "Enter" && (e.preventDefault(), addTag())
+                      }
                     />
                     <Button type="button" onClick={addTag} variant="outline">
                       إضافة
@@ -667,9 +800,15 @@ export default function AddProjectPage() {
                       value={newMaterial}
                       onChange={(e) => setNewMaterial(e.target.value)}
                       placeholder="أضف مادة جديدة"
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addMaterial())}
+                      onKeyPress={(e) =>
+                        e.key === "Enter" && (e.preventDefault(), addMaterial())
+                      }
                     />
-                    <Button type="button" onClick={addMaterial} variant="outline">
+                    <Button
+                      type="button"
+                      onClick={addMaterial}
+                      variant="outline"
+                    >
                       إضافة
                     </Button>
                   </div>
