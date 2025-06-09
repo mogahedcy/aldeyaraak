@@ -93,6 +93,24 @@ export default function LoginPage() {
           >
             {loading ? "جاري التحقق..." : "دخول"}
           </button>
+
+          <button
+            type="button"
+            onClick={() => (window.location.href = "/dashboard")}
+            style={{
+              width: "100%",
+              padding: "10px",
+              backgroundColor: "#28a745",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              marginTop: "10px",
+              fontSize: "14px",
+            }}
+          >
+            🚀 الدخول المباشر للوحة التحكم
+          </button>
         </form>
       </div>
     </div>
