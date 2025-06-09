@@ -211,13 +211,23 @@ export default function LoginForm() {
             </button>
 
             {error && (
-              <div>
-                <a
-                  href="/fix-login"
-                  className="inline-flex items-center gap-2 text-red-600 hover:text-red-800 transition-colors text-sm"
-                >
-                  🔧 إصلاح مشكلة تسجيل الدخول
-                </a>
+              <div className="space-y-1">
+                <div>
+                  <a
+                    href="/clear-cookies"
+                    className="inline-flex items-center gap-2 text-red-600 hover:text-red-800 transition-colors text-sm font-medium"
+                  >
+                    🧹 إلغاء الكوكيز وإعادة المحاولة
+                  </a>
+                </div>
+                <div>
+                  <a
+                    href="/fix-login"
+                    className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-800 transition-colors text-sm"
+                  >
+                    🔧 إصلاح مشكلة تسجيل الدخول
+                  </a>
+                </div>
               </div>
             )}
           </div>
