@@ -9,9 +9,11 @@ const prisma = new PrismaClient({
 // GET - جلب جميع المشاريع
 export async function GET(request: NextRequest) {
   try {
+    const startTime = Date.now();
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get("category");
     const featured = searchParams.get("featured");
+    const search = searchParams.get("search");
     const limit = searchParams.get("limit");
     const page = searchParams.get("page");
     const sort = searchParams.get("sort"); // newest, oldest, featured, popular
@@ -19,7 +21,7 @@ export async function GET(request: NextRequest) {
     const skip = page
       ? (Number.parseInt(page) - 1) * (limit ? Number.parseInt(limit) : 12)
       : 0;
-    const take = limit ? Number.parseInt(limit) : 12;
+    const take = Math.min(limit ? Number.parseInt(limit) : 12, 100); // تحديد الحد الأقصى
 
     const where: any = {};
 
@@ -29,6 +31,14 @@ export async function GET(request: NextRequest) {
 
     if (featured === "true") {
       where.featured = true;
+    }
+
+    if (search && search.trim()) {
+      where.OR = [
+        { title: { contains: search.trim(), mode: "insensitive" } },
+        { description: { contains: search.trim(), mode: "insensitive" } },
+        { location: { contains: search.trim(), mode: "insensitive" } },
+      ];
     }
 
     // تحديد ترتيب المشاريع
@@ -58,24 +68,66 @@ export async function GET(request: NextRequest) {
       orderBy,
     });
 
-    const projects = await prisma.project.findMany({
-      where,
-      include: {
-        mediaItems: {
-          orderBy: { order: "asc" },
-        },
-        tags: true,
-        materials: true,
-        _count: {
-          select: {
-            comments: true,
+    // استخدام parallel queries لتحسين الأداء
+    const [projects, totalCount] = await Promise.all([
+      prisma.project.findMany({
+        where,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          category: true,
+          location: true,
+          completionDate: true,
+          client: true,
+          featured: true,
+          projectDuration: true,
+          projectCost: true,
+          views: true,
+          likes: true,
+          rating: true,
+          createdAt: true,
+          updatedAt: true,
+          mediaItems: {
+            select: {
+              id: true,
+              type: true,
+              src: true,
+              thumbnail: true,
+              title: true,
+              description: true,
+              duration: true,
+              order: true,
+            },
+            orderBy: { order: "asc" },
+            take: 10, // تحديد عدد الملفات المرجعة لتحسين الأداء
+          },
+          tags: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          materials: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          _count: {
+            select: {
+              comments: true,
+              likes: true,
+            },
           },
         },
-      },
-      orderBy,
-      skip,
-      take,
-    });
+        orderBy,
+        skip,
+        take,
+      }),
+      // تنفيذ count فقط عند الحاجة (pagination)
+      page ? prisma.project.count({ where }) : Promise.resolve(0),
+    ]);
 
     // تحويل البيانات لتتوافق مع التنسيق المطلوب
     const formattedProjects = projects.map((project) => ({
@@ -85,9 +137,11 @@ export async function GET(request: NextRequest) {
       rating: project.rating || 0,
     }));
 
-    console.log("📊 المشاريع المجلبة:", {
+    const endTime = Date.now();
+    console.log(`📊 المشاريع المجلبة في ${endTime - startTime}ms:`, {
       count: projects.length,
-      projects: projects.map((p) => ({
+      totalCount,
+      projects: projects.slice(0, 3).map((p) => ({
         id: p.id,
         title: p.title,
         mediaCount: p.mediaItems.length,
@@ -95,23 +149,31 @@ export async function GET(request: NextRequest) {
       })),
     });
 
-    const totalCount = await prisma.project.count({ where });
-
-    return NextResponse.json({
+    const response = {
       success: true,
       projects: formattedProjects,
-      total: totalCount,
-      pagination: {
+      total: totalCount || projects.length,
+      performance: {
+        queryTime: endTime - startTime,
+        projectsReturned: projects.length,
+      },
+    };
+
+    // إضافة pagination فقط عند الحاجة
+    if (page) {
+      response.pagination = {
         total: totalCount,
-        page: page ? Number.parseInt(page) : 1,
+        page: Number.parseInt(page),
         limit: take,
         totalPages: Math.ceil(totalCount / take),
-      },
-    });
+      };
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("❌ خطأ في جلب المشاريع:", error);
     return NextResponse.json(
-      { error: "حدث خطأ في جلب المشاريع" },
+      { error: "حدث خطأ في جلب المشاريع", details: error.message },
       { status: 500 },
     );
   }
@@ -200,7 +262,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log("✅ تم إنشاء المشروع بنجاح:", {
+    console.log("��� تم إنشاء المشروع بنجاح:", {
       id: project.id,
       title: project.title,
       mediaCount: project.mediaItems.length,
