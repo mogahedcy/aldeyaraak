@@ -32,6 +32,7 @@ const publicPaths = [
   "/api/reviews",
   "/api/setup-admin",
   "/api/debug-cookies",
+  "/api/auth/bypass",
 ];
 
 // Rate limiting - تتبع الطلبات
