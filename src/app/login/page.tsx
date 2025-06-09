@@ -341,19 +341,37 @@ export default function LoginPage() {
           }}
         >
           <p style={{ margin: "0 0 15px 0" }}>🔒 منطقة محمية للمدراء فقط</p>
-          <button
-            onClick={() => (window.location.href = "/")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#1e3a8a",
-              cursor: "pointer",
-              textDecoration: "underline",
-              fontSize: "14px",
-            }}
+          <div
+            style={{ display: "flex", gap: "15px", justifyContent: "center" }}
           >
-            ← العودة للصفحة الرئيسية
-          </button>
+            <button
+              onClick={() => (window.location.href = "/")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#667eea",
+                cursor: "pointer",
+                textDecoration: "underline",
+                fontSize: "13px",
+              }}
+            >
+              ← الصفحة الرئيسية
+            </button>
+            <button
+              onClick={() => (window.location.href = "/fast-login")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#10b981",
+                cursor: "pointer",
+                textDecoration: "underline",
+                fontSize: "13px",
+                fontWeight: "bold",
+              }}
+            >
+              ⚡ تسجيل دخول سريع
+            </button>
+          </div>
         </div>
       </div>
 
