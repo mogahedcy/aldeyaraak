@@ -36,6 +36,9 @@ const publicPaths = [
   "/api/debug-cookies",
   "/api/auth/bypass",
   "/api/auth/clear-cookies",
+  "/api/auth/new-login",
+  "/api/auth/check-session",
+  "/api/auth/new-logout",
 ];
 
 // Rate limiting - تتبع الطلبات
