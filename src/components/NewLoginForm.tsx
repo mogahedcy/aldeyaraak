@@ -223,7 +223,7 @@ export default function NewLoginForm() {
           </form>
 
           {/* Quick Login for Testing */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="mt-6 pt-6 border-t border-gray-200 space-y-2">
             <button
               onClick={() => {
                 setFormData({ username: "admin", password: "admin123" });
@@ -233,6 +233,21 @@ export default function NewLoginForm() {
             >
               🔧 ملء البيانات التجريبية (admin / admin123)
             </button>
+
+            <div className="flex gap-2">
+              <a
+                href="/test-new-login"
+                className="flex-1 text-center text-xs text-blue-600 hover:text-blue-800 transition-colors py-2"
+              >
+                🔍 صفحة الاختبار
+              </a>
+              <a
+                href="/dashboard"
+                className="flex-1 text-center text-xs text-green-600 hover:text-green-800 transition-colors py-2"
+              >
+                📊 لوحة التحكم مباشرة
+              </a>
+            </div>
           </div>
 
           {/* Back to Home */}
