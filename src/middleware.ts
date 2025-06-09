@@ -66,58 +66,54 @@ function checkRateLimit(ip: string): boolean {
   return record.count <= RATE_LIMIT_MAX_REQUESTS;
 }
 
-// فحص الصلاحيات للمسارات المحمية
+// فحص الصلاحيات للمسارات المحمية - النظام الجديد
 async function checkAuth(request: NextRequest): Promise<boolean> {
   try {
     const { pathname } = request.nextUrl;
 
-    // البحث عن JWT token في cookies - نفس الاسم المستخدم في login API
-    const adminToken = request.cookies.get("admin-token")?.value;
-    const bypassToken = request.cookies.get("bypass-token")?.value;
-    const authStatus = request.cookies.get("auth-status")?.value;
+    // فحص النظام الجديد - admin-session
+    const adminSession = request.cookies.get("admin-session")?.value;
+    const adminLoggedIn = request.cookies.get("admin-logged-in")?.value;
 
-    console.log(`🔍 Auth check for ${pathname}:`);
-    console.log(`  - admin-token exists: ${!!adminToken}`);
-    console.log(`  - bypass-token exists: ${!!bypassToken}`);
-    console.log(`  - auth-status: ${authStatus}`);
-    console.log(
-      `  - all cookies: ${request.cookies
-        .getAll()
-        .map((c) => c.name)
-        .join(", ")}`,
-    );
+    console.log(`🔍 New auth check for ${pathname}:`);
+    console.log(`  - admin-session exists: ${!!adminSession}`);
+    console.log(`  - admin-logged-in: ${adminLoggedIn}`);
 
-    // فحص bypass token أولاً
-    if (bypassToken) {
-      try {
-        const jwt = await import("jsonwebtoken");
-        const decoded = jwt.verify(
-          bypassToken,
-          process.env.JWT_SECRET || "your-secret-key",
-        );
-        console.log(`✅ Valid bypass token found`);
-        return true;
-      } catch (bypassError) {
-        console.log("❌ Invalid bypass token:", bypassError.message);
-      }
-    }
-
-    if (!adminToken) {
-      console.log("❌ No admin-token cookie found");
+    if (!adminSession || adminLoggedIn !== "true") {
+      console.log("❌ No valid session found");
       return false;
     }
 
-    // التحقق من صحة التوكن
     try {
-      const jwt = await import("jsonwebtoken");
-      const decoded = jwt.verify(
-        adminToken,
-        process.env.JWT_SECRET || "your-secret-key",
+      const sessionData = JSON.parse(adminSession);
+
+      // فحص صحة البيانات
+      if (
+        !sessionData.adminId ||
+        !sessionData.username ||
+        !sessionData.loginTime
+      ) {
+        console.log("❌ Invalid session data structure");
+        return false;
+      }
+
+      // فحص انتهاء الجلسة (24 ساعة)
+      const loginTime = new Date(sessionData.loginTime);
+      const now = new Date();
+      const hoursDiff =
+        (now.getTime() - loginTime.getTime()) / (1000 * 60 * 60);
+
+      if (hoursDiff > 24) {
+        console.log("❌ Session expired");
+        return false;
+      }
+
+      console.log(
+        `✅ Valid session for user: ${sessionData.username} (${Math.round(24 - hoursDiff)}h remaining)`,
       );
-      console.log(`✅ Valid token for user: ${(decoded as any)?.username}`);
-      return !!decoded;
-    } catch (jwtError) {
-      console.error("❌ Invalid JWT token:", jwtError.message);
+      return true;
+    } catch (parseError) {
+      console.log("❌ Error parsing session data:", parseError.message);
       return false;
     }
   } catch (error) {
