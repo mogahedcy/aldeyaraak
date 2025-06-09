@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
+import StructuredDataScript from "@/components/StructuredDataScript";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const notoSansArabic = Noto_Sans_Arabic({
   variable: "--font-arabic",
@@ -12,20 +16,57 @@ const notoSansArabic = Noto_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "محترفين الديار العالمية | مظلات، برجولات، سواتر، ساندوتش بانل",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  ),
+  title:
+    "محترفين الديار العالمية | مظلات، برجولات، سواتر، ساندوتش بانل، ترميم، تنسيق حدائق جدة",
   description:
-    "محترفين الديار العالمية - خبرة 15 عاماً في جدة. خدمات شاملة: مظلات السيارات، برجولات الحدائق، سواتر الخصوصية، ساندوتش بانل، ترميم الملحقات، تنسيق الحدائق، بيوت الشعر، والخيام الملكية",
+    "محترفين الديار العالمية - شركة متخصصة في جدة تقدم خدمات شاملة: مظلات سيارات، برجولات حدائق، سواتر خصوصية، ساندوتش بانل، ترميم ملحقات، تنسيق حدائق، بيوت شعر تراثية، وخيام ملكية. خبرة 15 عاماً في تصميم وتنفيذ المشاريع بأعلى معايير الجودة في جدة والمملكة العربية السعودية.",
   keywords:
-    "محترفين الديار، مظلات جدة، برجولات جدة، سواتر جدة، ساندوتش بانل جدة",
+    "محترفين الديار العالمية، محترفين الديار جدة، مظلات سيارات جدة، برجولات حدائق جدة، سواتر خصوصية جدة، ساندوتش بانل جدة، ترميم ملحقات جدة، تنسيق حدائق جدة، بيوت شعر جدة، خيام ملكية جدة، مقاولات جدة، تركيب مظلات، تركيب برجولات، تركيب سواتر، أعمال معادن جدة، تنسيق مساحات خارجية",
   authors: [{ name: "محترفين الديار العالمية" }],
   robots: "index, follow",
+  alternates: {
+    canonical: "https://aldeyarksa.tech",
+    languages: {
+      "ar-SA": "https://aldeyarksa.tech",
+    },
+  },
   openGraph: {
     title: "محترفين الديار العالمية - خدمات شاملة في جدة",
     description:
-      "خبرة 15 عاماً في خدمات المظلات، البرجولات، السواتر، وتنسيق الحدائق في جدة",
-    type: "website",
+      "شركة متخصصة في المظلات، البرجولات، السواتر، وتنسيق الحدائق في جدة",
+    url: "https://aldeyarksa.tech",
+    siteName: "محترفين الديار العالمية",
     locale: "ar_SA",
+    type: "website",
+    images: [
+      {
+        url: "https://aldeyarksa.tech/favicon.svg",
+        width: 1200,
+        height: 630,
+        alt: "محترفين الديار العالمية",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "محترفين الديار العالمية",
+    description: "خدمات شاملة في المظلات والبرجولات والسواتر في جدة",
+    images: ["https://aldeyarksa.tech/favicon.svg"],
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.svg",
+  },
+  manifest: "/manifest.json",
 };
 
 export const viewport = {
@@ -35,79 +76,57 @@ export const viewport = {
   userScalable: false,
 };
 
-// Simple Header Component
-function SimpleHeader() {
-  return (
-    <header className="bg-blue-600 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <h1 className="text-xl font-bold">محترفين الديار العالمية</h1>
-          </div>
-          <div className="flex items-center space-x-4 space-x-reverse">
-            <a
-              href="tel:+966553719009"
-              className="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
-            >
-              اتصل الآن
-            </a>
-            <a
-              href="https://wa.me/966553719009"
-              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              واتساب
-            </a>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-// Simple Footer Component
-function SimpleFooter() {
-  return (
-    <footer className="bg-gray-800 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-lg font-bold mb-4">محترفين الديار العالمية</h3>
-            <p className="text-gray-300 leading-relaxed">
-              خبرة 15 عاماً في تقديم خدمات شاملة: مظلات، برجولات، سواتر، ساندوتش
-              بانل، ترميم، تنسيق حدائق، بيوت شعر، وخيام ملكية في جدة.
-            </p>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold mb-4">خدماتنا</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li>مظلات السيارات</li>
-              <li>برجولات الحدائق</li>
-              <li>سواتر الخصوصية</li>
-              <li>ساندوتش بانل</li>
-              <li>ترميم الملحقات</li>
-              <li>تنسيق الحدائق</li>
-              <li>بيوت الشعر</li>
-              <li>الخيام الملكية</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold mb-4">تواصل معنا</h4>
-            <div className="space-y-3 text-gray-300">
-              <p>📱 +966 55 371 9009</p>
-              <p>📧 info@aldeyar.com</p>
-              <p>📍 جدة، المملكة العربية السعودية</p>
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>© 2024 محترفين الديار العالمية - جميع الحقوق محفوظة</p>
-        </div>
-      </div>
-    </footer>
-  );
-}
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "محترفين الديار العالمية",
+  image: "https://aldeyarksa.tech/images/og-image.jpg",
+  "@id": "https://aldeyarksa.tech",
+  url: "https://aldeyarksa.tech",
+  telephone: "+966555555555",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "جدة",
+    addressLocality: "جدة",
+    addressRegion: "مكة",
+    postalCode: "22233",
+    addressCountry: "SA",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 21.485811,
+    longitude: 39.192505,
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Saturday",
+        "Sunday",
+      ],
+      opens: "08:00",
+      closes: "22:00",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Friday",
+      opens: "16:00",
+      closes: "22:00",
+    },
+  ],
+  sameAs: [
+    "https://www.facebook.com/aldeyar.jeddah",
+    "https://www.instagram.com/aldeyar.jeddah",
+    "https://twitter.com/aldeyar_jeddah",
+  ],
+  description:
+    "محترفين الديار العالمية - شركة متخصصة في جدة تقدم خدمات شاملة: مظلات سيارات، برجولات حدائق، سواتر خصوصية، ساندوتش بانل، ترميم ملحقات، تنسيق حدائق، بيوت شعر تراثية، وخيام ملكية. خبرة 15 عاماً في تصميم وتنفيذ المشاريع بأعلى معايير الجودة في جدة والمملكة العربية السعودية.",
+  priceRange: "SAR",
+};
 
 export default function RootLayout({
   children,
@@ -116,12 +135,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl" className={notoSansArabic.variable}>
+      <head>
+        <link rel="canonical" href="https://aldeyarksa.tech" />
+        <StructuredDataScript data={structuredData} />
+      </head>
       <body className="font-arabic">
-        <div className="flex flex-col min-h-screen">
-          <SimpleHeader />
-          <main className="flex-1">{children}</main>
-          <SimpleFooter />
-        </div>
+        <ErrorBoundary>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </ErrorBoundary>
       </body>
     </html>
   );
