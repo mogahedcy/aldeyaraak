@@ -15,6 +15,10 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
+    setResponseTime(null);
+
+    const startTime = Date.now();
 
     try {
       const response = await fetch("/api/check-login", {
@@ -26,15 +30,25 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
+      const clientTime = Date.now() - startTime;
+      setResponseTime(data.responseTime || clientTime);
 
       if (data.success) {
-        // توجيه فوري للوحة التحكم بدون حفظ أي بيانات
-        window.location.href = "/dashboard";
+        setSuccess(
+          `تم تسجيل الدخول بنجاح! (${data.responseTime || clientTime}ms)`,
+        );
+
+        // توجيه فوري إلى dashboard
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1000);
       } else {
-        setError(data.message || "اسم المستخدم أو كلمة المرور غير صحيحة");
+        setError(`${data.message} (${clientTime}ms)`);
       }
     } catch (error) {
-      setError("خطأ في الاتصال بالخادم");
+      const clientTime = Date.now() - startTime;
+      setResponseTime(clientTime);
+      setError(`خطأ في الاتصال بالخادم (${clientTime}ms)`);
     }
 
     setLoading(false);
