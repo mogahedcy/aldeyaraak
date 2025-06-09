@@ -4,20 +4,18 @@ import "./globals.css";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
 
-// Dynamic imports to prevent SSR issues
+// Dynamic imports with proper SSR support
 const Navbar = dynamic(() => import("@/components/Navbar"), {
-  ssr: false,
   loading: () => (
     <header className="bg-blue-600 text-white p-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-xl font-bold">محترفين الديا�� العالمية</h1>
+        <h1 className="text-xl font-bold">محترفين الديار العالمية</h1>
       </div>
     </header>
   ),
 });
 
 const Footer = dynamic(() => import("@/components/Footer"), {
-  ssr: false,
   loading: () => (
     <footer className="bg-gray-800 text-white p-4 mt-8">
       <div className="max-w-7xl mx-auto text-center">
