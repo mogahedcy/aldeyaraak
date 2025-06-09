@@ -332,6 +332,10 @@ export default function AddProjectPage() {
         }
       }
 
+      // تحديث مؤشر التقدم للانتهاء من الرفع
+      setUploadProgress(100);
+      setUploadStatus(`تم رفع ${uploadedMedia.length} ملف بنجاح!`);
+
       if (uploadedMedia.length === 0) {
         alert("لم يتم رفع أي ملفات بنجاح. يرجى المحاولة مرة أخرى.");
         return;
@@ -340,6 +344,9 @@ export default function AddProjectPage() {
       console.log(
         `📊 نتيجة الرفع: ${uploadedMedia.length} ملف نجح، ${failedUploads} ملف فشل`,
       );
+
+      // إظهار حالة إنشاء المشروع
+      setUploadStatus("إنشاء المشروع...");
 
       // إنشاء المشروع
       const projectData = {
@@ -361,7 +368,7 @@ export default function AddProjectPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert("تم إضافة المشروع بن��اح! 🎉");
+        alert("تم إضافة المشروع بنجاح! 🎉");
         router.push(`/dashboard/projects/${result.project.id}`);
       } else {
         const error = await response.json();
@@ -400,7 +407,7 @@ export default function AddProjectPage() {
             <CardHeader>
               <CardTitle>{formData.title || "عنوان المشروع"}</CardTitle>
               <CardDescription>
-                {formData.category} • {formData.location} •{" "}
+                {formData.category} �� {formData.location} •{" "}
                 {formData.completionDate}
               </CardDescription>
             </CardHeader>
