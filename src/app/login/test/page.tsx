@@ -55,13 +55,35 @@ export default function LoginTestPage() {
     setLoading(false);
   };
 
-  const checkCookies = () => {
-    const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+  const checkCookies = async () => {
+    // فحص الكوكيز من جانب الكلاينت
+    const clientCookies = document.cookie.split(";").reduce((acc, cookie) => {
       const [name, value] = cookie.trim().split("=");
-      acc[name] = value;
+      if (name) acc[name] = value;
       return acc;
     }, {} as any);
-    setResult({ type: "cookies", data: cookies });
+
+    // فحص الكوكيز من جانب السيرفر
+    try {
+      const response = await fetch("/api/debug-cookies");
+      const serverData = await response.json();
+
+      setResult({
+        type: "cookies",
+        data: {
+          clientCookies,
+          serverData: serverData.cookieInfo,
+          matches:
+            !!clientCookies["admin-token"] &&
+            serverData.cookieInfo?.adminTokenExists,
+        },
+      });
+    } catch (error) {
+      setResult({
+        type: "cookies",
+        data: { clientCookies, serverError: error.message },
+      });
+    }
   };
 
   const goToDashboard = () => {
