@@ -342,7 +342,7 @@ export default function AddProjectPage() {
       }
 
       console.log(
-        `📊 نتيجة الرفع: ${uploadedMedia.length} ملف نجح، ${failedUploads} ملف فشل`,
+        `���� نتيجة الرفع: ${uploadedMedia.length} ملف نجح، ${failedUploads} ملف فشل`,
       );
 
       // إظهار حالة إنشاء المشروع
@@ -554,7 +554,7 @@ export default function AddProjectPage() {
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    {uploadStatus || "ح��ظ..."}
+                    {uploadStatus || "حفظ..."}
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -567,6 +567,26 @@ export default function AddProjectPage() {
           </div>
         </div>
       </header>
+
+      {/* Upload Progress Bar */}
+      {isSubmitting && uploadProgress > 0 && (
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">
+                {uploadStatus}
+              </span>
+              <span className="text-sm text-gray-500">{uploadProgress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form
         id="project-form"
