@@ -66,15 +66,32 @@ export async function POST(request: NextRequest) {
     });
 
     // إعداد الكوكيز مع تحسينات للإنتاج
+    const isProduction = process.env.NODE_ENV === "production";
+
     response.cookies.set("admin-token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "lax" : "strict", // lax for production
+      secure: isProduction,
+      sameSite: "lax", // lax works better for production deployments
       maxAge: 24 * 60 * 60 * 1000, // 24 ساعة
       path: "/", // تأكيد المسار
+      // لا نحدد domain ليعمل مع جميع النطاقات
     });
 
-    console.log("✅ تم تعيين الكوكيز بنجاح للمستخدم:", admin.username);
+    // إضافة كوكيز بديل للتأكد
+    response.cookies.set("auth-status", "logged-in", {
+      httpOnly: false, // يمكن قراءته من JavaScript
+      secure: isProduction,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+      path: "/",
+    });
+
+    console.log(
+      "✅ تم تعيين الكوكيز بنجاح للمستخدم:",
+      admin.username,
+      "في البيئة:",
+      process.env.NODE_ENV,
+    );
 
     return response;
   } catch (error) {
