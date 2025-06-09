@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "bunx biome lint --write && bunx tsc --noEmit",
-    "format": "bunx biome format --write"
+    "format": "bunx biome format --write",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma db push --force-reset",
+    "verify-env": "node scripts/verify-env.js",
+    "setup": "npm run db:generate && npm run db:push && npm run verify-env",
+    "create-admin": "node scripts/create-admin.js"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
