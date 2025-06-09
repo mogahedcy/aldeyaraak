@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // مسارات محمية تحتاج مصادقة
-const protectedPaths = ["/dashboard", "/admin"];
+const protectedPaths = ["/admin"];
 
 // مسارات API محمية (فقط للكتابة)
 const protectedApiPaths = ["/api/auth/change-password", "/api/upload"];
@@ -148,7 +148,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isApiRoute = pathname.startsWith("/api");
 
-  // الحصول على IP الع��يل
+  // الحصول على IP العميل
   const clientIP =
     request.ip ||
     request.headers.get("x-forwarded-for")?.split(",")[0] ||
@@ -191,7 +191,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  // تجنب حلقة إعادة التوجيه - إذا كان المستخدم في صفحة login بالفعل
+  // تجنب حلقة إعادة التوجيه - إذا كان المستخدم في صفحة login ب��لفعل
   if (pathname === "/login") {
     const response = NextResponse.next();
     return addSecurityHeaders(response);
