@@ -42,6 +42,7 @@ const publicPaths = [
   "/api/auth/check-session",
   "/api/auth/new-logout",
   "/api/simple-login",
+  "/api/check-login",
   "/api/debug-admin",
   "/api/debug-middleware",
   "/test-new-login",
@@ -191,7 +192,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  // تجنب حلقة إعادة التوجيه - إذا كان المستخدم في صفحة login ب��لفعل
+  // تجنب حلقة إعادة التوجيه - إذا كان المستخدم في صفحة login بالفعل
   if (pathname === "/login") {
     const response = NextResponse.next();
     return addSecurityHeaders(response);
