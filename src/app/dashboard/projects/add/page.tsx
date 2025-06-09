@@ -382,6 +382,8 @@ export default function AddProjectPage() {
       );
     } finally {
       setIsSubmitting(false);
+      setUploadProgress(0);
+      setUploadStatus("");
     }
   };
 
@@ -407,7 +409,7 @@ export default function AddProjectPage() {
             <CardHeader>
               <CardTitle>{formData.title || "عنوان المشروع"}</CardTitle>
               <CardDescription>
-                {formData.category} �� {formData.location} •{" "}
+                {formData.category} • {formData.location} •{" "}
                 {formData.completionDate}
               </CardDescription>
             </CardHeader>
