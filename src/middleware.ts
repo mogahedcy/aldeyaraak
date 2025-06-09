@@ -21,6 +21,7 @@ const publicPaths = [
   "/terms",
   "/quote",
   "/login",
+  "/simple-login",
   "/test-dashboard",
   "/api/health-check",
   "/api/auth/login",
