@@ -6,24 +6,40 @@ const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json();
+    const body = await request.json();
+    const { username, password } = body;
 
-    console.log("🔐 محاولة تسجيل دخول للمستخدم:", username);
+    console.log("🔐 محاولة تسجيل دخول:", {
+      username,
+      hasPassword: !!password,
+      bodyKeys: Object.keys(body),
+    });
 
     // التحقق من وجود البيانات
     if (!username || !password) {
+      console.log("❌ بيانات ناقصة:", {
+        username: !!username,
+        password: !!password,
+      });
       return NextResponse.json(
         {
           success: false,
           message: "اسم المستخدم وكلمة المرور مطلوبان",
+          received: { username: !!username, password: !!password },
         },
         { status: 400 },
       );
     }
 
     // البحث عن المستخدم
+    console.log("🔍 البحث عن المستخدم في قاعدة البيانات...");
     const admin = await prisma.admin.findUnique({
       where: { username: username.trim() },
+    });
+
+    console.log("📋 نتيجة البحث:", {
+      found: !!admin,
+      username: admin?.username,
     });
 
     if (!admin) {
@@ -32,13 +48,29 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           message: "اسم المستخدم أو كلمة المرور غير صحيحة",
+          debug: "user_not_found",
         },
         { status: 401 },
       );
     }
 
     // التحقق من كلمة المرور
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    console.log("🔑 التحقق من كلمة المرور...");
+    let isPasswordValid = false;
+    try {
+      isPasswordValid = await bcrypt.compare(password, admin.password);
+      console.log("🔐 نتيجة التحقق من كلمة المرور:", isPasswordValid);
+    } catch (bcryptError) {
+      console.error("❌ خطأ في bcrypt:", bcryptError);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "خطأ في التحقق من كلمة المرور",
+          debug: "bcrypt_error",
+        },
+        { status: 500 },
+      );
+    }
 
     if (!isPasswordValid) {
       console.log("❌ كلمة مرور خاطئة للمستخدم:", username);
@@ -46,6 +78,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           message: "اسم المستخدم أو كلمة المرور غير صحيحة",
+          debug: "invalid_password",
         },
         { status: 401 },
       );
