@@ -2,9 +2,8 @@ import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { Metadata } from "next";
 
-// Dynamic imports for better performance and error prevention
+// Dynamic imports with proper SSR support (removed ssr: false)
 const HeroSection = dynamic(() => import("@/components/HeroSection"), {
-  ssr: true,
   loading: () => (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
       <div className="text-center">
@@ -16,7 +15,6 @@ const HeroSection = dynamic(() => import("@/components/HeroSection"), {
 });
 
 const ServicesSection = dynamic(() => import("@/components/ServicesSection"), {
-  ssr: true,
   loading: () => (
     <div className="h-96 bg-gray-50 animate-pulse rounded-lg mx-4 my-8"></div>
   ),
@@ -25,7 +23,6 @@ const ServicesSection = dynamic(() => import("@/components/ServicesSection"), {
 const PortfolioSection = dynamic(
   () => import("@/components/PortfolioSection"),
   {
-    ssr: false,
     loading: () => (
       <div className="h-96 bg-gray-50 animate-pulse rounded-lg mx-4 my-8"></div>
     ),
@@ -35,7 +32,6 @@ const PortfolioSection = dynamic(
 const WhyChooseUsSection = dynamic(
   () => import("@/components/WhyChooseUsSection"),
   {
-    ssr: true,
     loading: () => (
       <div className="h-96 bg-gray-50 animate-pulse rounded-lg mx-4 my-8"></div>
     ),
@@ -45,7 +41,6 @@ const WhyChooseUsSection = dynamic(
 const TestimonialsSection = dynamic(
   () => import("@/components/TestimonialsSection"),
   {
-    ssr: false,
     loading: () => (
       <div className="h-96 bg-gray-50 animate-pulse rounded-lg mx-4 my-8"></div>
     ),
@@ -53,14 +48,12 @@ const TestimonialsSection = dynamic(
 );
 
 const FAQSection = dynamic(() => import("@/components/FAQSection"), {
-  ssr: false,
   loading: () => (
     <div className="h-96 bg-gray-50 animate-pulse rounded-lg mx-4 my-8"></div>
   ),
 });
 
 const QuoteSection = dynamic(() => import("@/components/QuoteSection"), {
-  ssr: false,
   loading: () => (
     <div className="h-64 bg-gray-50 animate-pulse rounded-lg mx-4 my-8"></div>
   ),
