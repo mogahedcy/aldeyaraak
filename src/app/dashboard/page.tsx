@@ -1,80 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  BarChart3,
-  Eye,
-  ThumbsUp,
-  Users,
-  Settings,
-  FileText,
-  Plus,
-  LogOut,
-  Shield,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react";
-
-interface DashboardState {
-  loading: boolean;
-  authenticated: boolean;
-  admin: any;
-  stats: any;
-  error: string;
-}
 
 export default function DashboardPage() {
-  const [state, setState] = useState<DashboardState>({
-    loading: true,
-    authenticated: false,
-    admin: null,
-    stats: null,
-    error: "",
-  });
+  const [adminData, setAdminData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    checkAuthentication();
+    checkLogin();
     loadStats();
   }, []);
 
-  const checkAuthentication = async () => {
-    try {
-      console.log("🔍 فحص المصادقة...");
+  const checkLogin = () => {
+    // فحص الكوكيز البسيط
+    const isLoggedIn = document.cookie.includes("logged-in=yes");
+    const username = document.cookie
+      .split(";")
+      .find((row) => row.trim().startsWith("admin-username="))
+      ?.split("=")[1];
 
-      const response = await fetch("/api/auth/check-session", {
-        credentials: "include",
-      });
-
-      const data = await response.json();
-      console.log("📡 نتيجة فحص المصادقة:", data);
-
-      if (response.ok && data.authenticated) {
-        setState((prev) => ({
-          ...prev,
-          authenticated: true,
-          admin: data.admin,
-          loading: false,
-        }));
-      } else {
-        console.log("❌ غير مصادق، إعادة توجيه...");
-        window.location.href = "/login";
-      }
-    } catch (error) {
-      console.error("❌ خطأ في فحص المصادقة:", error);
-      setState((prev) => ({
-        ...prev,
-        error: "خطأ في فحص المصادقة",
-        loading: false,
-      }));
+    if (!isLoggedIn) {
+      // إعادة توجيه لتسجيل الدخول
+      window.location.href = "/login";
+      return;
     }
+
+    setAdminData({ username: username || "المدير" });
+    setLoading(false);
   };
 
   const loadStats = async () => {
@@ -84,7 +37,7 @@ export default function DashboardPage() {
         const data = await response.json();
         const projects = data.projects || [];
 
-        const stats = {
+        setStats({
           totalProjects: projects.length,
           totalViews: projects.reduce(
             (sum: number, p: any) => sum + (p.views || 0),
@@ -95,244 +48,433 @@ export default function DashboardPage() {
             0,
           ),
           featuredProjects: projects.filter((p: any) => p.featured).length,
-        };
-
-        setState((prev) => ({ ...prev, stats }));
+        });
       }
     } catch (error) {
-      console.error("خطأ في جلب الإحصائيات:", error);
+      console.error("خطأ في تحميل الإحصائيات:", error);
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch("/api/auth/new-logout", {
-        method: "POST",
-        credentials: "include",
-      });
+  const handleLogout = () => {
+    // حذف الكوكيز
+    document.cookie =
+      "logged-in=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "admin-id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "admin-username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-      if (response.ok) {
-        window.location.href = "/login";
-      }
-    } catch (error) {
-      console.error("خطأ في تسجيل الخروج:", error);
-    }
+    // إعادة توجيه لتسجيل الدخول
+    window.location.href = "/login";
   };
 
-  if (state.loading) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري تحميل لوحة التحكم...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (state.error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">حدث خطأ</h2>
-          <p className="text-gray-600 mb-4">{state.error}</p>
-          <Button onClick={() => window.location.reload()}>
-            إعادة المحاولة
-          </Button>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f8fafc",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              width: "50px",
+              height: "50px",
+              border: "5px solid #e2e8f0",
+              borderTop: "5px solid #3b82f6",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              margin: "0 auto 20px",
+            }}
+          ></div>
+          <p style={{ color: "#64748b", fontSize: "18px" }}>
+            جاري تحميل لوحة التحكم...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f8fafc",
+        fontFamily: "Arial, sans-serif",
+        direction: "rtl",
+      }}
+    >
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <Shield className="h-8 w-8 text-blue-600 ml-3" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  لوحة تحكم الإدارة
-                </h1>
-                <p className="text-sm text-gray-500">محترفين الديار العالمية</p>
-              </div>
-            </div>
+      <header
+        style={{
+          backgroundColor: "white",
+          borderBottom: "1px solid #e2e8f0",
+          padding: "20px 0",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "0 20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <h1
+              style={{
+                fontSize: "2rem",
+                color: "#1e293b",
+                margin: "0 0 5px 0",
+              }}
+            >
+              🏢 لوحة تحكم الإدارة
+            </h1>
+            <p
+              style={{
+                color: "#64748b",
+                margin: 0,
+                fontSize: "14px",
+              }}
+            >
+              محترفين الديار العالمية
+            </p>
+          </div>
 
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                مرحباً،{" "}
-                <span className="font-medium">{state.admin?.username}</span>
-              </div>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 ml-2" />
-                تسجيل الخروج
-              </Button>
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            <span style={{ color: "#475569" }}>
+              مرحباً، <strong>{adminData?.username}</strong>
+            </span>
+            <button
+              onClick={handleLogout}
+              style={{
+                backgroundColor: "#ef4444",
+                color: "white",
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
+            >
+              🚪 تسجيل الخروج
+            </button>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "30px 20px",
+        }}
+      >
         {/* Success Message */}
-        <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="text-green-800 font-medium">
-              🎉 تم تسجيل الدخول بنجاح! النظام الجديد يعمل بشكل مثالي.
-            </span>
-          </div>
+        <div
+          style={{
+            backgroundColor: "#dcfce7",
+            border: "1px solid #bbf7d0",
+            borderRadius: "8px",
+            padding: "16px",
+            marginBottom: "30px",
+            textAlign: "center",
+          }}
+        >
+          <h2
+            style={{
+              color: "#166534",
+              margin: "0 0 8px 0",
+              fontSize: "1.2rem",
+            }}
+          >
+            🎉 تم تسجيل الدخول بنجاح!
+          </h2>
+          <p
+            style={{
+              color: "#15803d",
+              margin: 0,
+              fontSize: "14px",
+            }}
+          >
+            مرحباً بك في لوحة التحكم الجديدة - النظام يعمل بشكل مثالي
+          </p>
         </div>
 
         {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div style={{ marginBottom: "40px" }}>
+          <h2
+            style={{
+              fontSize: "1.5rem",
+              color: "#1e293b",
+              marginBottom: "20px",
+            }}
+          >
             الإجراءات السريعة
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Button
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            <button
               onClick={() => (window.location.href = "/dashboard/projects/add")}
-              className="flex items-center justify-center gap-2 h-20 bg-green-600 hover:bg-green-700"
+              style={{
+                backgroundColor: "#16a34a",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                padding: "25px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "bold",
+                minHeight: "100px",
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+              }}
             >
-              <Plus className="h-6 w-6" />
+              <span style={{ fontSize: "2rem" }}>➕</span>
               <span>إضافة مشروع جديد</span>
-            </Button>
+            </button>
 
-            <Button
+            <button
               onClick={() => (window.location.href = "/dashboard/projects")}
-              variant="outline"
-              className="flex items-center justify-center gap-2 h-20"
+              style={{
+                backgroundColor: "#2563eb",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                padding: "25px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "bold",
+                minHeight: "100px",
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+              }}
             >
-              <FileText className="h-6 w-6" />
+              <span style={{ fontSize: "2rem" }}>📋</span>
               <span>إدارة المشاريع</span>
-            </Button>
+            </button>
 
-            <Button
+            <button
               onClick={() => (window.location.href = "/portfolio")}
-              variant="outline"
-              className="flex items-center justify-center gap-2 h-20"
+              style={{
+                backgroundColor: "#7c3aed",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                padding: "25px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "bold",
+                minHeight: "100px",
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+              }}
             >
-              <Eye className="h-6 w-6" />
+              <span style={{ fontSize: "2rem" }}>👁️</span>
               <span>معاينة الموقع</span>
-            </Button>
+            </button>
 
-            <Button
+            <button
               onClick={() => (window.location.href = "/dashboard/settings")}
-              variant="outline"
-              className="flex items-center justify-center gap-2 h-20"
+              style={{
+                backgroundColor: "#dc2626",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                padding: "25px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "bold",
+                minHeight: "100px",
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+              }}
             >
-              <Settings className="h-6 w-6" />
+              <span style={{ fontSize: "2rem" }}>⚙️</span>
               <span>الإعدادات</span>
-            </Button>
+            </button>
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        {/* Statistics */}
+        <div style={{ marginBottom: "40px" }}>
+          <h2
+            style={{
+              fontSize: "1.5rem",
+              color: "#1e293b",
+              marginBottom: "20px",
+            }}
+          >
             الإحصائيات العامة
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  إجمالي المشاريع
-                </CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">
-                  {state.stats?.totalProjects || 0}
-                </div>
-                <p className="text-xs text-muted-foreground">مشروع مكتمل</p>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  إجمالي المشاهدات
-                </CardTitle>
-                <Eye className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  {(state.stats?.totalViews || 0).toLocaleString()}
-                </div>
-                <p className="text-xs text-muted-foreground">مشاهدة إجمالية</p>
-              </CardContent>
-            </Card>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "white",
+                borderRadius: "10px",
+                padding: "25px",
+                textAlign: "center",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: "1px solid #e2e8f0",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "2.5rem",
+                  fontWeight: "bold",
+                  color: "#2563eb",
+                  marginBottom: "10px",
+                }}
+              >
+                {stats?.totalProjects || 0}
+              </div>
+              <div style={{ color: "#64748b", fontSize: "14px" }}>
+                إجمالي المشاريع
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  إجمالي الإعجابات
-                </CardTitle>
-                <ThumbsUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-orange-600">
-                  {state.stats?.totalLikes || 0}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  إعجاب من العملاء
-                </p>
-              </CardContent>
-            </Card>
+            <div
+              style={{
+                backgroundColor: "white",
+                borderRadius: "10px",
+                padding: "25px",
+                textAlign: "center",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: "1px solid #e2e8f0",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "2.5rem",
+                  fontWeight: "bold",
+                  color: "#16a34a",
+                  marginBottom: "10px",
+                }}
+              >
+                {stats?.totalViews?.toLocaleString() || 0}
+              </div>
+              <div style={{ color: "#64748b", fontSize: "14px" }}>
+                إجمالي المشاهدات
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  المشاريع المميزة
-                </CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-600">
-                  {state.stats?.featuredProjects || 0}
-                </div>
-                <p className="text-xs text-muted-foreground">مشروع مميز</p>
-              </CardContent>
-            </Card>
+            <div
+              style={{
+                backgroundColor: "white",
+                borderRadius: "10px",
+                padding: "25px",
+                textAlign: "center",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: "1px solid #e2e8f0",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "2.5rem",
+                  fontWeight: "bold",
+                  color: "#dc2626",
+                  marginBottom: "10px",
+                }}
+              >
+                {stats?.totalLikes || 0}
+              </div>
+              <div style={{ color: "#64748b", fontSize: "14px" }}>
+                إجمالي الإعجابات
+              </div>
+            </div>
+
+            <div
+              style={{
+                backgroundColor: "white",
+                borderRadius: "10px",
+                padding: "25px",
+                textAlign: "center",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: "1px solid #e2e8f0",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "2.5rem",
+                  fontWeight: "bold",
+                  color: "#7c3aed",
+                  marginBottom: "10px",
+                }}
+              >
+                {stats?.featuredProjects || 0}
+              </div>
+              <div style={{ color: "#64748b", fontSize: "14px" }}>
+                المشاريع المميزة
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* System Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              حالة النظام
-            </CardTitle>
-            <CardDescription>معلومات النظام الجديد</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                <span className="text-sm">نظام المصادقة:</span>
-                <span className="text-sm font-medium text-green-600">
-                  جديد ومحسن ✅
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                <span className="text-sm">حالة قاعدة البيانات:</span>
-                <span className="text-sm font-medium text-blue-600">
-                  متصلة ✅
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                <span className="text-sm">مستوى الأمان:</span>
-                <span className="text-sm font-medium text-purple-600">
-                  عالي ✅
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Footer */}
+        <div
+          style={{
+            textAlign: "center",
+            padding: "20px",
+            backgroundColor: "white",
+            borderRadius: "10px",
+            border: "1px solid #e2e8f0",
+          }}
+        >
+          <p
+            style={{
+              color: "#64748b",
+              margin: 0,
+              fontSize: "14px",
+            }}
+          >
+            © 2024 محترفين الديار العالمية - جميع الحقوق محفوظة
+          </p>
+        </div>
       </div>
+
+      {/* Add CSS for spinner animation */}
+      <style jsx>{`
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }
