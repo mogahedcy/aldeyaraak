@@ -50,6 +50,7 @@ const publicPaths = [
   "/api/debug-admin",
   "/api/debug-middleware",
   "/test-new-login",
+  "/test-upload",
 ];
 
 // Rate limiting - تتبع الطلبات
@@ -67,7 +68,7 @@ function checkRateLimit(ip: string): boolean {
     return true;
   }
 
-  // إذا انتهت النافزة الزمنية، إعادة تعيين العداد
+  // إذا انتهت النافزة الزمني��، إعادة تعيين العداد
   if (now - record.timestamp > RATE_LIMIT_WINDOW) {
     rateLimitMap.set(ip, { count: 1, timestamp: now });
     return true;
