@@ -1,14 +1,7 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
-  experimental: {
-    outputFileTracingRoot: undefined,
-  },
-  serverExternalPackages: ['@prisma/client'],
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client']
-  },
+  output: "standalone",
+  serverExternalPackages: ["@prisma/client"],
   images: {
     unoptimized: true,
     domains: [
@@ -17,6 +10,8 @@ const nextConfig = {
       "ext.same-assets.com",
       "ugc.same-assets.com",
       "aldeyarksa.tech",
+      "res.cloudinary.com",
+      "dj6gk4wmy.cloudinary.com",
     ],
     remotePatterns: [
       {
@@ -44,6 +39,16 @@ const nextConfig = {
         hostname: "aldeyarksa.tech",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "dj6gk4wmy.cloudinary.com",
+        pathname: "/**",
+      },
     ],
   },
   compress: true,
@@ -53,41 +58,41 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
+            key: "X-Frame-Options",
+            value: "DENY",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
           },
         ],
       },
       {
-        source: '/favicon.ico',
+        source: "/favicon.ico",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
       {
-        source: '/:all*(svg|jpg|jpeg|png|webp|gif|ico)',
+        source: "/:all*(svg|jpg|jpeg|png|webp|gif|ico)",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
@@ -96,13 +101,13 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/home',
-        destination: '/',
+        source: "/home",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/services',
-        destination: '/#services',
+        source: "/services",
+        destination: "/#services",
         permanent: true,
       },
     ];
