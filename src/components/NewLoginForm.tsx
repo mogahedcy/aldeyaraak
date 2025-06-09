@@ -26,7 +26,22 @@ export default function NewLoginForm() {
     setMessage({ type: "", text: "" });
 
     try {
-      console.log("🔐 تسجيل الدخول...", formData.username);
+      console.log("🔐 بدء تسجيل الدخول...", {
+        username: formData.username,
+        passwordLength: formData.password.length,
+        hasUsername: !!formData.username,
+        hasPassword: !!formData.password,
+      });
+
+      const requestBody = {
+        username: formData.username.trim(),
+        password: formData.password,
+      };
+
+      console.log("📤 إرسال البيانات:", {
+        username: requestBody.username,
+        hasPassword: !!requestBody.password,
+      });
 
       const response = await fetch("/api/auth/new-login", {
         method: "POST",
@@ -34,11 +49,17 @@ export default function NewLoginForm() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log("📡 استجابة HTTP:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
       });
 
       const data = await response.json();
-      console.log("📡 Response:", data);
+      console.log("📦 بيانات الاستجابة:", data);
 
       if (response.ok && data.success) {
         setMessage({
@@ -46,19 +67,36 @@ export default function NewLoginForm() {
           text: "تم تسجيل الدخول بنجاح! جاري التحويل...",
         });
 
+        console.log("✅ نجح تسجيل الدخول، فحص الكوكيز...");
+        console.log("🍪 كوكيز المتصفح:", document.cookie);
+
         // تحويل فوري إلى dashboard
         setTimeout(() => {
+          console.log("🔄 توجيه إلى dashboard...");
           window.location.href = "/dashboard";
-        }, 1000);
+        }, 1500);
       } else {
+        console.error("❌ فشل تسجيل الدخول:", {
+          status: response.status,
+          data,
+        });
+
+        let errorMessage = data.message || data.error || "فشل تسجيل الدخول";
+        if (data.debug) {
+          errorMessage += ` (${data.debug})`;
+        }
+
         setMessage({
           type: "error",
-          text: data.message || data.error || "فشل تسجيل الدخول",
+          text: errorMessage,
         });
       }
     } catch (error) {
-      console.error("❌ خطأ:", error);
-      setMessage({ type: "error", text: "خطأ في الاتصال بالخادم" });
+      console.error("❌ خطأ في الشبكة:", error);
+      setMessage({
+        type: "error",
+        text: `خطأ في الاتصال بالخادم: ${error.message}`,
+      });
     }
 
     setLoading(false);
