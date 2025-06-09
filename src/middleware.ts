@@ -74,56 +74,27 @@ function checkRateLimit(ip: string): boolean {
   return record.count <= RATE_LIMIT_MAX_REQUESTS;
 }
 
-// فحص الصلاحيات للمسارات المحمية - النظام الجديد
+// فحص الصلاحيات للمسارات المحمية - نظام بسيط جداً
 async function checkAuth(request: NextRequest): Promise<boolean> {
   try {
     const { pathname } = request.nextUrl;
 
-    // فحص النظام الجديد - admin-session
-    const adminSession = request.cookies.get("admin-session")?.value;
-    const adminLoggedIn = request.cookies.get("admin-logged-in")?.value;
+    // فحص الكوكيز البسيط
+    const loggedIn = request.cookies.get("logged-in")?.value;
+    const adminId = request.cookies.get("admin-id")?.value;
 
-    console.log(`🔍 New auth check for ${pathname}:`);
-    console.log(`  - admin-session exists: ${!!adminSession}`);
-    console.log(`  - admin-logged-in: ${adminLoggedIn}`);
+    console.log(`🔍 Simple auth check for ${pathname}:`);
+    console.log(`  - logged-in: ${loggedIn}`);
+    console.log(`  - admin-id exists: ${!!adminId}`);
 
-    if (!adminSession || adminLoggedIn !== "true") {
-      console.log("❌ No valid session found");
-      return false;
-    }
+    // فحص بسيط جداً
+    const isAuthenticated = loggedIn === "yes" && !!adminId;
 
-    try {
-      const sessionData = JSON.parse(adminSession);
+    console.log(
+      `${isAuthenticated ? "✅" : "❌"} Auth result: ${isAuthenticated}`,
+    );
 
-      // فحص صحة البيانات
-      if (
-        !sessionData.adminId ||
-        !sessionData.username ||
-        !sessionData.loginTime
-      ) {
-        console.log("❌ Invalid session data structure");
-        return false;
-      }
-
-      // فحص انتهاء الجلسة (24 ساعة)
-      const loginTime = new Date(sessionData.loginTime);
-      const now = new Date();
-      const hoursDiff =
-        (now.getTime() - loginTime.getTime()) / (1000 * 60 * 60);
-
-      if (hoursDiff > 24) {
-        console.log("❌ Session expired");
-        return false;
-      }
-
-      console.log(
-        `✅ Valid session for user: ${sessionData.username} (${Math.round(24 - hoursDiff)}h remaining)`,
-      );
-      return true;
-    } catch (parseError) {
-      console.log("❌ Error parsing session data:", parseError.message);
-      return false;
-    }
+    return isAuthenticated;
   } catch (error) {
     console.error("❌ خطأ في فحص المصادقة:", error);
     return false;
