@@ -18,7 +18,74 @@ import {
   Loader2,
 } from "lucide-react";
 
-// تعريف أنواع الخدمات مع الأيقونات المناسبة - متوافق مع صفحة البورتفوليو
+// بيانات وهمية للمشاريع لتجنب مشاكل API أثناء التطوير
+const dummyProjects = [
+  {
+    id: "1",
+    title: "مظلة سيارات فيلا فاخرة",
+    description: "تصميم وتنفيذ مظلة سيارات عصرية لفيلا سكنية في حي الروضة",
+    category: "مظلات",
+    location: "جدة - حي الروضة",
+    completionDate: "2024-01-15",
+    featured: true,
+    views: 150,
+    likes: 25,
+    rating: 4.8,
+    mediaItems: [
+      {
+        id: "1-1",
+        type: "IMAGE" as const,
+        src: "https://images.unsplash.com/photo-1558618047-3c8c5c7e3c01?w=600&h=400&fit=crop",
+        title: "مظلة سيارات",
+      },
+    ],
+    tags: [{ name: "مظلات" }, { name: "سيارات" }],
+  },
+  {
+    id: "2",
+    title: "برجولة حديقة منزلية",
+    description: "برجولة خشبية أنيقة لحديقة منزلية مع إضاءة LED",
+    category: "برجولات",
+    location: "جدة - حي النزهة",
+    completionDate: "2024-01-10",
+    featured: true,
+    views: 120,
+    likes: 18,
+    rating: 4.6,
+    mediaItems: [
+      {
+        id: "2-1",
+        type: "IMAGE" as const,
+        src: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=400&fit=crop",
+        title: "برجولة حديقة",
+      },
+    ],
+    tags: [{ name: "برجولات" }, { name: "حدائق" }],
+  },
+  {
+    id: "3",
+    title: "ساتر خصوصية للحديقة",
+    description: "ساتر حديدي مزخرف لضمان الخصوصية مع لمسة جمالية",
+    category: "سواتر",
+    location: "جدة - حي الصفا",
+    completionDate: "2024-01-05",
+    featured: true,
+    views: 100,
+    likes: 15,
+    rating: 4.5,
+    mediaItems: [
+      {
+        id: "3-1",
+        type: "IMAGE" as const,
+        src: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=400&fit=crop",
+        title: "ساتر حديقة",
+      },
+    ],
+    tags: [{ name: "سواتر" }, { name: "خصوصية" }],
+  },
+];
+
+// تعري�� أنواع الخدمات مع الأيقونات المناسبة
 const serviceCategories = [
   { id: "مظلات", name: "مظلات", icon: Car },
   { id: "برجولات", name: "برجولات", icon: TreePine },
@@ -59,34 +126,38 @@ export default function PortfolioSection() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("الكل");
 
-  // جلب المشاريع المميزة المحسنة
+  // تحميل البيانات
   useEffect(() => {
-    const fetchFeaturedProjects = async () => {
+    const loadProjects = async () => {
       try {
         setLoading(true);
 
-        // استخدام API محسن للمشاريع المميزة
-        const response = await fetch(`/api/projects/featured?limit=8`);
-        const data = await response.json();
+        // محاولة جلب البيانات من API
+        try {
+          const response = await fetch("/api/projects/featured?limit=8");
+          const data = await response.json();
 
-        if (data.success && data.projects) {
-          setProjects(data.projects);
-          console.log(
-            `✅ تم جلب ${data.projects.length} مشروع مميز في ${data.performance?.queryTime || 0}ms`,
-          );
-        } else {
-          console.warn("لا توجد مشاريع متاحة");
-          setProjects([]);
+          if (data.success && data.projects && data.projects.length > 0) {
+            setProjects(data.projects);
+            console.log("✅ تم جلب المشاريع من API:", data.projects.length);
+            return;
+          }
+        } catch (apiError) {
+          console.warn("فشل في جلب البيانات من API، استخدام البيانات الوهمية");
         }
+
+        // استخدام البيانات الوهمية كـ fallback
+        setProjects(dummyProjects);
+        console.log("✅ تم تحميل البيانات الوهمية:", dummyProjects.length);
       } catch (error) {
-        console.error("خطأ في جلب المشاريع:", error);
-        setProjects([]);
+        console.error("خطأ في تحميل المشاريع:", error);
+        setProjects(dummyProjects);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFeaturedProjects();
+    loadProjects();
   }, []);
 
   const filteredProjects =
