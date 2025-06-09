@@ -39,6 +39,8 @@ const publicPaths = [
   "/api/auth/new-login",
   "/api/auth/check-session",
   "/api/auth/new-logout",
+  "/api/debug-admin",
+  "/test-new-login",
 ];
 
 // Rate limiting - تتبع الطلبات
