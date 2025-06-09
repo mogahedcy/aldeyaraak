@@ -1,16 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  experimental: {
-    // Remove deprecated options
-  },
   serverExternalPackages: ["@prisma/client"],
-  turbopack: {
-    // Turbopack configuration for better performance
-    resolveAlias: {
-      "@prisma/client": "@prisma/client/default",
-    },
-  },
   images: {
     unoptimized: true,
     domains: [
