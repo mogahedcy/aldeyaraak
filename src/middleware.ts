@@ -41,6 +41,7 @@ const publicPaths = [
   "/api/auth/check-session",
   "/api/auth/new-logout",
   "/api/debug-admin",
+  "/api/debug-middleware",
   "/test-new-login",
 ];
 
