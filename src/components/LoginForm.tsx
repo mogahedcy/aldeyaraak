@@ -17,6 +17,9 @@ import { Button } from "@/components/ui/button";
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
