@@ -199,8 +199,8 @@ export default function LoginForm() {
             </Button>
           </form>
 
-          {/* Back to Home */}
-          <div className="mt-6 text-center">
+          {/* Links */}
+          <div className="mt-6 text-center space-y-2">
             <button
               type="button"
               onClick={() => router.push("/")}
@@ -209,6 +209,17 @@ export default function LoginForm() {
               <ArrowLeft className="w-4 h-4" />
               العودة للصفحة الرئيسية
             </button>
+
+            {error && (
+              <div>
+                <a
+                  href="/fix-login"
+                  className="inline-flex items-center gap-2 text-red-600 hover:text-red-800 transition-colors text-sm"
+                >
+                  🔧 إصلاح مشكلة تسجيل الدخول
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
