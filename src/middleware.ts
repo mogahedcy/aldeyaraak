@@ -35,6 +35,7 @@ const publicPaths = [
   "/api/setup-admin",
   "/api/debug-cookies",
   "/api/auth/bypass",
+  "/api/auth/clear-cookies",
 ];
 
 // Rate limiting - تتبع الطلبات
@@ -196,7 +197,7 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // تنظيف الذاكرة من سجلات قديمة (كل 5 د��ائق)
+  // تنظيف الذاكرة من سجلات قديمة (كل 5 دقائق)
   if (Math.random() < 0.01) {
     // 1% احتمال
     const now = Date.now();
