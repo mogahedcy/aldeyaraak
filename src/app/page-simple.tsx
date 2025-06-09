@@ -1,4 +1,4 @@
-export default function HomePage() {
+export default function SimpleHomePage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -15,7 +15,7 @@ export default function HomePage() {
               <p className="text-gray-600">حماية سيارتك من العوامل الجوية</p>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3">برجولا�� الحدائق</h3>
+              <h3 className="text-lg font-semibold mb-3">برجولات الحدائق</h3>
               <p className="text-gray-600">أضف لمسة جمالية لحديقتك</p>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg">
@@ -30,11 +30,6 @@ export default function HomePage() {
             >
               اتصل الآن: 9009 371 55 966+
             </a>
-          </div>
-          <div className="mt-8">
-            <p className="text-sm text-gray-500">
-              التطبيق يعمل بنجاح! ✅ جميع الإعدادات صحيحة.
-            </p>
           </div>
         </div>
       </div>
