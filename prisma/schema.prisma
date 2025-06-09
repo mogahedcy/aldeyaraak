@@ -33,6 +33,14 @@ model Project {
   materials        ProjectMaterial[]
   comments         Comment[]
 
+  // Database indexes for performance
+  @@index([category])
+  @@index([featured])
+  @@index([createdAt])
+  @@index([featured, createdAt])
+  @@index([category, featured])
+  @@index([views])
+  @@index([likes])
   @@map("projects")
 }
 
