@@ -22,6 +22,7 @@ const publicPaths = [
   "/quote",
   "/login",
   "/simple-login",
+  "/fix-login",
   "/test-dashboard",
   "/api/health-check",
   "/api/auth/login",
@@ -196,7 +197,7 @@ export async function middleware(request: NextRequest) {
 
   // تنظيف الذاكرة من سجلات قديمة (كل 5 دقائق)
   if (Math.random() < 0.01) {
-    // 1% احتمال
+    // 1% احتم��ل
     const now = Date.now();
     for (const [ip, record] of rateLimitMap.entries()) {
       if (now - record.timestamp > RATE_LIMIT_WINDOW * 5) {
