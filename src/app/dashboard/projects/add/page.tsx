@@ -232,12 +232,51 @@ export default function AddProjectPage() {
       const uploadedMedia = [];
       let failedUploads = 0;
 
+      console.log(`📤 بدء رفع ${mediaFiles.length} ملف...`);
+
       for (let i = 0; i < mediaFiles.length; i++) {
         const mediaFile = mediaFiles[i];
         try {
           console.log(
             `📤 رفع الملف ${i + 1} من ${mediaFiles.length}: ${mediaFile.file.name}`,
           );
+
+          // التحقق من حجم الملف
+          const isVideo = mediaFile.type === "video";
+          const maxSize = isVideo ? 100 * 1024 * 1024 : 20 * 1024 * 1024; // 100MB للفيديو، 20MB للصور
+
+          if (mediaFile.file.size > maxSize) {
+            const maxSizeMB = Math.round(maxSize / 1024 / 1024);
+            throw new Error(`حجم الملف كبير جداً. الحد الأقصى: ${maxSizeMB}MB`);
+          }
+
+          // التحقق من نوع الملف
+          const allowedImageTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp",
+            "image/gif",
+          ];
+          const allowedVideoTypes = [
+            "video/mp4",
+            "video/mov",
+            "video/avi",
+            "video/webm",
+            "video/quicktime",
+          ];
+
+          if (isVideo && !allowedVideoTypes.includes(mediaFile.file.type)) {
+            throw new Error(
+              "نوع الفيديو غير مدعوم. الأنواع المدعومة: MP4, MOV, AVI, WebM",
+            );
+          }
+
+          if (!isVideo && !allowedImageTypes.includes(mediaFile.file.type)) {
+            throw new Error(
+              "نوع الصورة غير مدعوم. الأنواع المدعومة: JPG, PNG, WebP, GIF",
+            );
+          }
 
           const url = await uploadToCloudinary(mediaFile.file);
           if (!url) {
@@ -251,7 +290,9 @@ export default function AddProjectPage() {
           uploadedMedia.push({
             type: mediaFile.type.toUpperCase(),
             src: url,
-            thumbnail: url,
+            thumbnail: isVideo
+              ? `${url.replace("/upload/", "/upload/c_fill,h_200,w_300,so_0/")}.jpg`
+              : url,
             title: mediaFile.title || mediaFile.file.name,
             description: mediaFile.description || "",
             order: uploadedMedia.length,
@@ -267,15 +308,23 @@ export default function AddProjectPage() {
             uploadError instanceof Error
               ? uploadError.message
               : "خطأ غير معروف";
-          alert(
-            `فشل في رفع الملف: ${mediaFile.file.name}\nالخطأ: ${errorMessage}`,
+
+          // إظهار رسالة خطأ مفصلة
+          const shouldContinue = confirm(
+            `فشل في رفع الملف: ${mediaFile.file.name}\n\n` +
+              `الخطأ: ${errorMessage}\n\n` +
+              `هل تريد المتابعة مع باقي الملفات؟\n` +
+              `(اضغط "موافق" للمتابعة أو "إلغاء" للتوقف)`,
           );
-          return;
+
+          if (!shouldContinue) {
+            return;
+          }
         }
       }
 
       if (uploadedMedia.length === 0) {
-        alert("لم يتم رفع أي ملفات بنجاح. يرجى ا��محاولة مرة أخرى.");
+        alert("لم يتم رفع أي ملفات بنجاح. يرجى المحاولة مرة أخرى.");
         return;
       }
 
@@ -342,7 +391,7 @@ export default function AddProjectPage() {
             <CardHeader>
               <CardTitle>{formData.title || "عنوان المشروع"}</CardTitle>
               <CardDescription>
-                {formData.category} �� {formData.location} •{" "}
+                {formData.category} • {formData.location} •{" "}
                 {formData.completionDate}
               </CardDescription>
             </CardHeader>
