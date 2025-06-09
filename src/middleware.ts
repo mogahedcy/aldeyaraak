@@ -23,6 +23,7 @@ const publicPaths = [
   "/login",
   "/simple-login",
   "/fix-login",
+  "/clear-cookies",
   "/test-dashboard",
   "/api/health-check",
   "/api/auth/login",
@@ -195,9 +196,9 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // تنظيف الذاكرة من سجلات قديمة (كل 5 دقائق)
+  // تنظيف الذاكرة من سجلات قديمة (كل 5 د��ائق)
   if (Math.random() < 0.01) {
-    // 1% احتم��ل
+    // 1% احتمال
     const now = Date.now();
     for (const [ip, record] of rateLimitMap.entries()) {
       if (now - record.timestamp > RATE_LIMIT_WINDOW * 5) {
