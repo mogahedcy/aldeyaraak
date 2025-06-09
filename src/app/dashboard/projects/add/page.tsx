@@ -54,6 +54,8 @@ export default function AddProjectPage() {
   const [newTag, setNewTag] = useState("");
   const [newMaterial, setNewMaterial] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState("");
   const [previewMode, setPreviewMode] = useState(false);
 
   const categories = [
