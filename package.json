@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0 --turbopack",
+    "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "lint": "bunx biome lint --write && bunx tsc --noEmit",
@@ -30,7 +30,6 @@
     "cloudinary": "^2.6.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.2.6",
-    "dotenv": "^16.5.0",
     "framer-motion": "^12.15.0",
     "isomorphic-dompurify": "^2.25.0",
     "jsonwebtoken": "^9.0.2",
