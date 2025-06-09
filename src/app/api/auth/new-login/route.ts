@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     // تحديث آخر تسجيل دخول
+    console.log("📝 تحديث آخر تسجيل دخول...");
     await prisma.admin.update({
       where: { id: admin.id },
       data: { lastLogin: new Date() },
@@ -97,6 +98,8 @@ export async function POST(request: NextRequest) {
       loginTime: new Date().toISOString(),
     };
 
+    console.log("📦 إنشاء session data:", sessionData);
+
     const response = NextResponse.json({
       success: true,
       message: "تم تسجيل الدخول بنجاح",
@@ -105,10 +108,14 @@ export async function POST(request: NextRequest) {
         username: admin.username,
         email: admin.email,
       },
+      sessionData, // إضافة session data للاختبار
     });
 
     // تعيين كوكيز بسيط جداً
-    response.cookies.set("admin-session", JSON.stringify(sessionData), {
+    const sessionString = JSON.stringify(sessionData);
+    console.log("🍪 تعيين الكوكيز:", { sessionLength: sessionString.length });
+
+    response.cookies.set("admin-session", sessionString, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -126,6 +133,7 @@ export async function POST(request: NextRequest) {
     });
 
     console.log("✅ تم تسجيل الدخول بنجاح للمستخدم:", username);
+    console.log("🍪 تم تعيين الكوكيز بنجاح");
 
     return response;
   } catch (error) {
