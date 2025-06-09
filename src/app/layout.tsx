@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
-import ClientBody from "./ClientBody";
 import StructuredDataScript from "@/components/StructuredDataScript";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Navbar from "@/components/Navbar";
