@@ -238,6 +238,13 @@ export default function AddProjectPage() {
 
       for (let i = 0; i < mediaFiles.length; i++) {
         const mediaFile = mediaFiles[i];
+
+        // تحديث مؤشر التقدم
+        setUploadProgress(Math.round((i / mediaFiles.length) * 100));
+        setUploadStatus(
+          `رفع الملف ${i + 1} من ${mediaFiles.length}: ${mediaFile.file.name}`,
+        );
+
         try {
           console.log(
             `📤 رفع الملف ${i + 1} من ${mediaFiles.length}: ${mediaFile.file.name}`,
@@ -354,7 +361,7 @@ export default function AddProjectPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert("تم إضافة المشروع بنجاح! 🎉");
+        alert("تم إضافة المشروع بن��اح! 🎉");
         router.push(`/dashboard/projects/${result.project.id}`);
       } else {
         const error = await response.json();
