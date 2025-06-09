@@ -2,15 +2,15 @@
 const nextConfig = {
   output: "standalone",
   experimental: {
-    outputFileTracingRoot: undefined,
-    turbo: {
-      // Turbopack configuration for better performance
-      resolveAlias: {
-        "@prisma/client": "@prisma/client/default",
-      },
-    },
+    // Remove deprecated options
   },
   serverExternalPackages: ["@prisma/client"],
+  turbopack: {
+    // Turbopack configuration for better performance
+    resolveAlias: {
+      "@prisma/client": "@prisma/client/default",
+    },
+  },
   images: {
     unoptimized: true,
     domains: [
