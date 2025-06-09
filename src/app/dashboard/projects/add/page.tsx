@@ -178,19 +178,34 @@ export default function AddProjectPage() {
 
       console.log("📡 استجابة السيرفر:", response.status, response.statusText);
 
+      // Get response text first to debug JSON parsing issues
+      const responseText = await response.text();
+      console.log("📄 نص الاستجابة:", responseText.substring(0, 200));
+
       if (!response.ok) {
         let errorMessage = "فشل في رفع الملف";
         try {
-          const errorData = await response.json();
+          const errorData = JSON.parse(responseText);
           errorMessage = errorData.error || errorData.details || errorMessage;
           console.error("❌ خطأ من السيرفر:", errorData);
         } catch (parseError) {
           console.error("❌ خطأ في تحليل استجابة الخطأ:", parseError);
+          console.error("❌ النص الكامل للاستجابة:", responseText);
+          errorMessage = `خطأ في السيرفر (${response.status})`;
         }
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      // Parse JSON response
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("❌ خطأ في تحليل JSON:", parseError);
+        console.error("❌ النص المستلم:", responseText);
+        throw new Error("استجابة غير صحيحة من السيرفر. تحقق من سجلات السيرفر.");
+      }
+
       console.log("✅ نتيجة الرفع:", data);
 
       // التحقق من نجاح العملية
@@ -215,6 +230,13 @@ export default function AddProjectPage() {
       return fileUrl;
     } catch (networkError) {
       console.error("❌ خطأ في الشبكة:", networkError);
+
+      if (networkError.message.includes("JSON")) {
+        throw new Error(
+          "خطأ في تحليل استجابة السيرفر. تحقق من إعدادات الخادم.",
+        );
+      }
+
       throw new Error(`خطأ في الاتصال: ${networkError.message}`);
     }
   };
@@ -342,7 +364,7 @@ export default function AddProjectPage() {
       }
 
       console.log(
-        `���� نتيجة الرفع: ${uploadedMedia.length} ملف نجح، ${failedUploads} ملف فشل`,
+        `📊 نتيجة الرفع: ${uploadedMedia.length} ملف نجح، ${failedUploads} ملف فشل`,
       );
 
       // إظهار حالة إنشاء المشروع
