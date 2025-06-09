@@ -9,6 +9,18 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
+    // زيادة حجم الـ body للملفات الكبيرة
+    serverActions: {
+      bodySizeLimit: "100mb",
+    },
+  },
+
+  // إعدادات API routes للملفات الكبيرة
+  api: {
+    bodyParser: {
+      sizeLimit: "100mb",
+    },
+    responseLimit: false,
   },
 
   // تحسين حزم الخادم الخارجية
